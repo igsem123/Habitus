@@ -2,6 +2,7 @@ package br.com.app.src.main.kotlin.com.habitus.presentation.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -46,21 +48,20 @@ import br.com.app.src.main.kotlin.com.habitus.R
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.HabitusTheme
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.PrimaryDarkColor
 import compose.icons.LineAwesomeIcons
+import compose.icons.lineawesomeicons.CannabisSolid
 import compose.icons.lineawesomeicons.Envelope
 import compose.icons.lineawesomeicons.LockSolid
 import compose.icons.lineawesomeicons.PhoneSolid
 import compose.icons.lineawesomeicons.User
 import compose.icons.lineawesomeicons.UserLockSolid
 
+/**
+ * Tela inicial do aplicativo, onde o usuário pode se cadastrar.
+ * @param modifier Modificador para personalizar a aparência da tela.
+ * @param onNavigateToHome Função de callback chamada quando o usuário clica no botão "Cadastrar!".
+ */
 @Composable
-fun InitialFormScreen(modifier: Modifier = Modifier) {
-    val gradient = Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.background,
-            PrimaryDarkColor,
-        ),
-        startY = 1500f,
-    )
+fun InitialFormScreen(modifier: Modifier = Modifier, onNavigateToHome: () -> Unit) {
     // Cores do gradiente
     val startColor = Color(0xFF007FFF) // Azul vibrante
     val endColor = Color(0xFF00FFFF) // Azul turquesa/ciano
@@ -85,7 +86,6 @@ fun InitialFormScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(brush = gradient)
             .verticalScroll(rememberScrollState()),
         contentAlignment = Alignment.TopCenter
     ) {
@@ -94,7 +94,7 @@ fun InitialFormScreen(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_logo),
@@ -120,16 +120,14 @@ fun InitialFormScreen(modifier: Modifier = Modifier) {
                 ),
                 textAlign = TextAlign.Center,
                 modifier = Modifier,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
             Text(
                 text = "Vamos juntos transformar sua vida em um hábito saudável e sustentável.",
                 color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    brush = gradientBrush
-                ),
+                style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
+                fontWeight = FontWeight.Light
             )
             Text(
                 text = "Vamos começar?",
@@ -138,17 +136,15 @@ fun InitialFormScreen(modifier: Modifier = Modifier) {
                     brush = secondGradientBrush
                 ),
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier
             )
             Text(
                 text = "Mas antes, precisamos de algumas informações.",
                 color = MaterialTheme.colorScheme.secondary,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    brush = secondGradientBrush
-                ),
+                style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
+                fontWeight = FontWeight.Light,
             )
             CustomOutlinedTextField(
                 value = "",
@@ -180,12 +176,19 @@ fun InitialFormScreen(modifier: Modifier = Modifier) {
                 value = "",
                 onValueChange = {},
                 label = "Telefone",
-                placeholder = "Digite seu telefone...",
+                placeholder = "",
                 leadingIcon = LineAwesomeIcons.PhoneSolid,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
-                )
+                ),
+                prefix = {
+                    Text(
+                        text = "+55",
+                        color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
             )
             CustomOutlinedTextField(
                 value = "",
@@ -215,18 +218,22 @@ fun InitialFormScreen(modifier: Modifier = Modifier) {
             )
 
             TextButton(
-                onClick = { /* Ação ao clicar no botão */ },
+                onClick = {
+                    onNavigateToHome()
+                },
                 modifier = Modifier
                     .padding(16.dp)
-                    .fillMaxWidth(0.9f),
-                shape = RoundedCornerShape(16.dp)
+                    .border(width = 1.dp, brush = secondGradientBrush, shape = RoundedCornerShape(24.dp))
+                    .padding(4.dp),
             ) {
                 Text(
                     text = "Cadastrar!",
                     color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 28.sp
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        brush = secondGradientBrush
+                    ),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp
                 )
             }
         }
@@ -241,7 +248,7 @@ private fun CustomOutlinedTextField(
     label: String,
     placeholder: String,
     leadingIcon: ImageVector? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: ImageVector? = null,
     isError: Boolean = false,
     isErrorValue: String = "",
     isErrorLabel: String = "",
@@ -250,7 +257,8 @@ private fun CustomOutlinedTextField(
     isErrorTrailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation? = VisualTransformation.None,
     keyboardOptions: KeyboardOptions? = null,
-    keyboardActions: KeyboardActions? = null
+    keyboardActions: KeyboardActions? = null,
+    prefix: @Composable (() -> Unit)? = null,
 ) {
     OutlinedTextField(
         value = value,
@@ -268,8 +276,8 @@ private fun CustomOutlinedTextField(
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedContainerColor = MaterialTheme.colorScheme.background,
             focusedContainerColor = MaterialTheme.colorScheme.background,
-            unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
-            focusedBorderColor = MaterialTheme.colorScheme.secondary,
+            unfocusedBorderColor = Color(0xFF00AC90),
+            focusedBorderColor = Color(0xFF00AC90),
             unfocusedTrailingIconColor = MaterialTheme.colorScheme.secondary,
             focusedTrailingIconColor = MaterialTheme.colorScheme.secondary
         ),
@@ -278,7 +286,16 @@ private fun CustomOutlinedTextField(
                 Icon(
                     imageVector = it,
                     contentDescription = "Ícone de usuário",
-                    tint = MaterialTheme.colorScheme.secondary
+                    tint = Color(0xFF00AC90)
+                )
+            }
+        },
+        trailingIcon = {
+            trailingIcon?.let {
+                Icon(
+                    imageVector = it,
+                    contentDescription = it.name,
+                    tint = Color(0xFF00AC90)
                 )
             }
         },
@@ -288,7 +305,11 @@ private fun CustomOutlinedTextField(
                 color = MaterialTheme.colorScheme.secondary
             )
         },
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        visualTransformation = visualTransformation ?: VisualTransformation.None,
+        keyboardOptions = keyboardOptions ?: KeyboardOptions.Default,
+        keyboardActions = keyboardActions ?: KeyboardActions.Default,
+        prefix = prefix
     )
 }
 
@@ -296,6 +317,9 @@ private fun CustomOutlinedTextField(
 @Composable
 private fun InitialFormScreenPreview() {
     HabitusTheme {
-        InitialFormScreen()
+        InitialFormScreen(
+            modifier = Modifier,
+            onNavigateToHome = {}
+        )
     }
 }
