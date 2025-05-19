@@ -13,3 +13,5 @@ val SecondaryDarkColor = Color(0xFF007BFF)
 val SuccessColor = Color(0xFF56CC9D)
 val HighlightColor = Color(0xFFF2C94C)
 val DividerColor = Color(0xFFE0E0E0)
+
+val azulMarinho = Color(0xFF003366)
