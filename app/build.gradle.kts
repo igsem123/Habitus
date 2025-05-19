@@ -85,4 +85,15 @@ dependencies {
     // Icons
     implementation(libs.font.awesome)
     implementation(libs.line.awesome)
+
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Splash Screen
+    implementation(libs.androidx.core.splashscreen)
+
+    // Coil
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
 }
