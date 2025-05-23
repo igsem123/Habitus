@@ -4,11 +4,11 @@ coilCompose = "3.2.0"
 composeCalendar = "2.7.0"
 coreSplashscreen = "1.0.1"
 fontAwesome = "1.1.1"
-googleHiltCompiler = "2.56.1"
+googleHiltCompiler = "2.56.2"
 googleid = "1.1.1"
-hiltAndroid = "2.56.1"
+hiltAndroid = "2.56.2"
 hiltAndroidGradlePlugin = "2.56.1"
-hiltAndroidTestingVersion = "2.56.1"
+hiltAndroidTestingVersion = "2.56.2"
 hiltNavigationCompose = "1.2.0"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
@@ -17,11 +17,11 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.9.0"
 activityCompose = "1.10.1"
-composeBom = "2025.05.00"
+composeBom = "2025.05.01"
 lineAwesome = "1.1.1"
 navigationCompose = "2.9.0"
 roomRuntime = "2.7.1"
-uiTextGoogleFonts = "1.8.1"
+uiTextGoogleFonts = "1.8.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,7 +54,7 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.4.0-alpha15" }
 line-awesome = { module = "br.com.devsrsouza.compose.icons:line-awesome", version.ref = "lineAwesome" }
 
 [plugins]
