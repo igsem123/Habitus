@@ -2,26 +2,27 @@ package br.com.app.src.main.kotlin.com.habitus.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
 import br.com.app.src.main.kotlin.com.habitus.R
 
-// Fonte Inter padrão do aplicativo
-val interFontFamily = FontFamily(
-    Font(R.font.inter, FontWeight.Normal),
-    Font(R.font.inter_medium, FontWeight.Medium),
-    Font(R.font.inter_semibold, FontWeight.SemiBold),
-    Font(R.font.inter_bold, FontWeight.Bold),
-    Font(R.font.inter_black, FontWeight.Black),
-    Font(R.font.inter_light, FontWeight.Light),
-    Font(R.font.inter_thin, FontWeight.Thin),
-    Font(R.font.inter_extralight, FontWeight.ExtraLight),
+val provider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs
 )
 
+val interFont = GoogleFont("Inter")
 
-// Set of Material typography styles to start with
+// Fonte Inter padrão do aplicativo
+val interFontFamily = FontFamily(
+    Font(interFont, provider)
+)
+
+// Definição da tipografia do aplicativo
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = interFontFamily,
