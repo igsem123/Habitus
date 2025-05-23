@@ -39,13 +39,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HabitusTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Habitus(modifier = Modifier.padding(innerPadding))
+                    Habitus()
                 }
             }
         }
     }
-}
 
 @Composable
 fun Habitus(modifier: Modifier = Modifier) {
@@ -60,38 +58,41 @@ fun Habitus(modifier: Modifier = Modifier) {
         else -> true
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        if (!isShowTopAppBar) {
-            TopAppBar(
-                title = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.logo_app),
-                            contentDescription = "Logo Habitus",
-                            modifier = Modifier
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
-        }
-
-        NavHost(
-            navController = navController,
-            startDestination = INITIAL_FORM_ROUTE,
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            initialFormNavigation(navController)
-            homeNavigation(navController)
+            if (!isShowTopAppBar) {
+                TopAppBar(
+                    title = {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.logo_app),
+                                contentDescription = "Logo Habitus",
+                                modifier = Modifier
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                )
+            }
+
+            NavHost(
+                navController = navController,
+                startDestination = INITIAL_FORM_ROUTE,
+            ) {
+                initialFormNavigation(navController)
+                homeNavigation(navController)
+            }
         }
     }
 }
