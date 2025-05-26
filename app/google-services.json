@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "327024252146",
+    "project_id": "habitus-ac84b",
+    "storage_bucket": "habitus-ac84b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:327024252146:android:ad6062d0dd251732b56c6b",
+        "android_client_info": {
+          "package_name": "br.com.app.src.main.kotlin.com.habitus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "327024252146-11ae8d3rfsfkgjl90a14208hp8inqm1h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.app.src.main.kotlin.com.habitus",
+            "certificate_hash": "503370b34620a64e2079f6930ba1dd61f41394fc"
+          }
+        },
+        {
+          "client_id": "327024252146-9sph84tls9lih06ku383nq8ackqdqa1p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2WaBcjY9Yf6XcnZiMR04tl4lX28Q9hUw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "327024252146-9sph84tls9lih06ku383nq8ackqdqa1p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
