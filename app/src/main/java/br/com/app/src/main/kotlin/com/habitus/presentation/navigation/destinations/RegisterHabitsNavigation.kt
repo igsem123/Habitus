@@ -5,13 +5,13 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
-import br.com.app.src.main.kotlin.com.habitus.presentation.screens.HomeScreen
+import br.com.app.src.main.kotlin.com.habitus.presentation.screens.RegisterHabitsScreen
 
-internal const val HOME_ROUTE = "home"
+internal const val REGISTER_HABITS_ROUTE = "register_habits"
 
-internal fun NavGraphBuilder.homeNavigation(navController: NavHostController) {
+internal fun NavGraphBuilder.registerHabitsNavigation(navController: NavHostController) {
     composable(
-        route = HOME_ROUTE,
+        route = REGISTER_HABITS_ROUTE,
     ) {
         val user = UserEntity(
             email = "jota.jota@gmail.com",
@@ -19,18 +19,13 @@ internal fun NavGraphBuilder.homeNavigation(navController: NavHostController) {
             uid = "daoksdaskookasdko",
             username = "jotinha123",
         )
-        HomeScreen(
-            user = user,
-            onNavigateToRegisterHabits = {
-                navController.navigateToRegisterHabits()
-            }
-        )
+        RegisterHabitsScreen(user = user)
     }
 }
 
-fun NavController.navigateToHome() {
-    this.navigate(HOME_ROUTE) {
-        popUpTo(HOME_ROUTE) {
+fun NavController.navigateToRegisterHabits() {
+    this.navigate(REGISTER_HABITS_ROUTE) {
+        popUpTo(REGISTER_HABITS_ROUTE) {
             inclusive = true
         }
     }
