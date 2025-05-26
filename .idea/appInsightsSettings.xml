@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="br.com.app.src.main.kotlin.com.habitus" />
+                  <option name="mobileSdkAppId" value="1:327024252146:android:ad6062d0dd251732b56c6b" />
+                  <option name="projectId" value="habitus-ac84b" />
+                  <option name="projectNumber" value="327024252146" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
