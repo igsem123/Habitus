@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,19 +33,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.CalendarioComponent
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.CardHabits
+import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.HabitsViewModel
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.HabitusTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
     user: UserEntity,
-    onNavigateToRegisterHabits: () -> Unit = {}
+    onNavigateToRegisterHabits: () -> Unit = {},
+    viewModel: HabitsViewModel = hiltViewModel()
 ) {
-    val habits = listOf("Ler", "Meditar", "Caminhar", "Beber água")
-    val checkedHabits = remember { mutableStateOf(setOf("Meditar")) }
+    /*val habits = listOf("Ler", "Meditar", "Caminhar", "Beber água")*/
+    val habits by viewModel.habits.collectAsState()
+    val checkedHabits = remember { mutableStateOf(habits) }
 
     LazyColumn(
         modifier = Modifier
