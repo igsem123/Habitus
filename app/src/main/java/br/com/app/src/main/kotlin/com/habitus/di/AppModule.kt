@@ -3,6 +3,8 @@ package br.com.app.src.main.kotlin.com.habitus.di
 import android.app.Application
 import androidx.room.Room
 import br.com.app.src.main.kotlin.com.habitus.data.database.HabitusDatabase
+import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
+import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,5 +23,11 @@ class AppModule : Application() {
             HabitusDatabase::class.java,
             "habitus_database"
         ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideHabitRepository(database: HabitusDatabase): HabitRepository {
+        return HabitRepositoryImpl(database)
     }
 }

@@ -17,6 +17,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -132,8 +133,7 @@ fun InitialFormScreen(modifier: Modifier = Modifier, onNavigateToHome: () -> Uni
 fun SplashContent() {
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         val infiniteTransition = rememberInfiniteTransition()
@@ -149,7 +149,10 @@ fun SplashContent() {
             )
         )
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.logo_app),
                 contentDescription = "Logo Habitus",
@@ -200,18 +203,6 @@ fun CadastroForm(onNavigateToHome: () -> Unit, onGoToLogin: () -> Unit) {
             .background(Color.White)
             .verticalScroll(rememberScrollState())
     ) {
-        Box(
-            modifier = Modifier
-                .height(120.dp)
-                .fillMaxWidth()
-                .paint(
-                    painter = painterResource(R.drawable.bc_top_appbar),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
-                    contentScale = ContentScale.FillWidth
-                ),
-            contentAlignment = Alignment.BottomCenter
-        ) {}
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -380,18 +371,6 @@ fun LoginForm(onNavigateToHome: () -> Unit, onGoToCadastro: () -> Unit) {
             .background(Color.White)
             .verticalScroll(rememberScrollState())
     ) {
-        Box(
-            modifier = Modifier
-                .height(120.dp)
-                .fillMaxWidth()
-                .paint(
-                    painter = painterResource(R.drawable.bc_top_appbar),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
-                    contentScale = ContentScale.FillWidth
-                ),
-            contentAlignment = Alignment.BottomCenter
-        ) {}
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -491,3 +470,4 @@ fun LoginForm(onNavigateToHome: () -> Unit, onGoToCadastro: () -> Unit) {
         }
     }
 }
+

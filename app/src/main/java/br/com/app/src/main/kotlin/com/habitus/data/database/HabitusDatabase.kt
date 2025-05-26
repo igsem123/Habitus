@@ -2,15 +2,16 @@ package br.com.app.src.main.kotlin.com.habitus.data.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import br.com.app.src.main.kotlin.com.habitus.data.dao.TaskDao
-import br.com.app.src.main.kotlin.com.habitus.data.entity.TaskEntity
+import androidx.room.TypeConverters
+import br.com.app.src.main.kotlin.com.habitus.data.dao.HabitDao
+import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
 
 @Database(
-    entities = [TaskEntity::class],
+    entities = [HabitEntity::class],
     version = 1,
     exportSchema = true
 )
-
+@TypeConverters(Converters::class)
 abstract class HabitusDatabase() : RoomDatabase() {
-    abstract fun taskDao(): TaskDao
+    abstract fun habitDao(): HabitDao
 }
