@@ -19,7 +19,12 @@ internal fun NavGraphBuilder.registerHabitsNavigation(navController: NavHostCont
             uid = "daoksdaskookasdko",
             username = "jotinha123",
         )
-        RegisterHabitsScreen(user = user)
+        RegisterHabitsScreen(
+            user = user,
+            onHabitRegistered = {
+                navController.navigateToHome()
+            }
+        )
     }
 }
 

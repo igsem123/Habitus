@@ -12,6 +12,7 @@ data class HabitEntity(
     val description: String = "",
     var isCompleted: Boolean = false,
     val category: String = "",
+    val frequency: String = "",
     val pontuation: Int = 0,
     val days: List<Int>,
     val icon: String = "LineAwesomeIcons.HandPointUp",

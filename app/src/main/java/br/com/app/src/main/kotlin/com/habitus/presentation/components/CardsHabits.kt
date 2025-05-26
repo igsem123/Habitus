@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.azulMarinho
 import compose.icons.LineAwesomeIcons
 import compose.icons.lineawesomeicons.CheckSolid
@@ -29,8 +30,8 @@ import compose.icons.lineawesomeicons.PlusSolid
 @Composable
 fun CardHabits(
     isChecked: Boolean,
-    checkedHabits: MutableState<Set<String>>,
-    habit: String
+    checkedHabits: MutableState<List<HabitEntity>>,
+    habit: HabitEntity
 ) {
     Box(
         modifier = Modifier
@@ -57,7 +58,7 @@ fun CardHabits(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(habit, fontSize = 16.sp)
+            Text(habit.title, fontSize = 16.sp)
             Icon(
                 imageVector = if (isChecked) LineAwesomeIcons.CheckSolid else LineAwesomeIcons.PlusSolid,
                 contentDescription = null,

@@ -87,7 +87,6 @@ fun TopAppBarForHomeScreen(
 ) {
     Box(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
             .height(120.dp)
             .fillMaxWidth()
             .paint(

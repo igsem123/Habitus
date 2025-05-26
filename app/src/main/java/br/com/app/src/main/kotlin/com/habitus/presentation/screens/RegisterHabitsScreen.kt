@@ -2,6 +2,7 @@
 
 package br.com.app.src.main.kotlin.com.habitus.presentation.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -25,10 +26,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
@@ -36,54 +44,62 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import br.com.app.src.main.kotlin.com.habitus.data.entity.Days
-import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
 import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.HabitsViewModel
-import compose.icons.AllIcons
-import compose.icons.LineAwesomeIcons
-import compose.icons.lineawesomeicons.Smile
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterHabitsScreen(
     modifier: Modifier = Modifier,
     user: UserEntity,
-    viewModel: HabitsViewModel = hiltViewModel()
+    viewModel: HabitsViewModel = hiltViewModel(),
+    onHabitRegistered: () -> Unit // Callback para ação após o registro do hábito
 ) {
-    val icons = remember { LineAwesomeIcons.AllIcons }
-    var showIconSelectorDialog by rememberSaveable { mutableStateOf(false) }
-    var selectedIcon by rememberSaveable { mutableStateOf<ImageVector?>(null) }
-    var habitName by rememberSaveable { mutableStateOf("") }
-    val frequencyOptions = listOf("Diariamente", "Semanalmente", "Mensalmente")
-    var selectedFrequency by rememberSaveable { mutableStateOf(frequencyOptions.first()) }
-    val selectedDays = remember { mutableStateListOf<Days>() }
-    var pontuation by rememberSaveable { mutableIntStateOf(0) }
+    val uiState by viewModel.registerUiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val gradient = Brush.horizontalGradient(
+        listOf(
+            MaterialTheme.colorScheme.tertiary,
+            MaterialTheme.colorScheme.primary
+        )
+    )
 
-    if (showIconSelectorDialog) {
+    // Efeito para lidar com o sucesso do salvamento ou erros
+    LaunchedEffect(uiState.saveSuccess, uiState.error) {
+        if (uiState.saveSuccess) {
+            Toast.makeText(context, "Hábito registrado com sucesso!", Toast.LENGTH_SHORT).show()
+            onHabitRegistered() // Executa a ação de callback
+            viewModel.resetRegisterState()
+        }
+        uiState.error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            viewModel.resetError() // Limpa o erro após exibição
+        }
+    }
+
+    if (uiState.showIconSelectorDialog) {
         IconSelectorDialog(
-            icons = icons,
+            icons = uiState.availableIcons,
             onIconSelected = { icon ->
-                selectedIcon = icon
-                showIconSelectorDialog = false
+                viewModel.onIconSelected(icon)
             },
-            onDismiss = { showIconSelectorDialog = false },
-            modifier = Modifier
-                .fillMaxSize()
+            onDismiss = { viewModel.dismissIconDialog() }
         )
     }
 
@@ -101,7 +117,7 @@ fun RegisterHabitsScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)
         ) {
             IconButton(
-                onClick = { showIconSelectorDialog = true },
+                onClick = { viewModel.showIconDialog() },
                 modifier = Modifier
                     .padding(top = 8.dp)
                     .clip(RoundedCornerShape(16.dp))
@@ -112,15 +128,15 @@ fun RegisterHabitsScreen(
                     .size(48.dp)
             ) {
                 Icon(
-                    imageVector = if (selectedIcon != null) selectedIcon!! else LineAwesomeIcons.Smile,
-                    contentDescription = "Ícone indicando para selecionar o ícone do hábito",
+                    imageVector = uiState.selectedIcon,
+                    contentDescription = "Selecionar ícone do hábito",
                     tint = MaterialTheme.colorScheme.tertiary,
                 )
             }
 
             HabitFormTextField(
-                value = habitName,
-                onValueChange = { habitName = it },
+                value = uiState.habitName,
+                onValueChange = { viewModel.onHabitNameChange(it) },
                 label = "Nome do hábito",
                 placeholder = "Ex: Beber água",
                 modifier = Modifier
@@ -150,17 +166,15 @@ fun RegisterHabitsScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                frequencyOptions.forEach {
+                uiState.frequencyOptions.forEach { frequency ->
                     FrequencyButton(
-                        frequency = it,
-                        onSelectFrequency = {
-                            selectedFrequency = it
-                        },
-                        selected = selectedFrequency == it
+                        frequency = frequency,
+                        onSelectFrequency = { viewModel.onFrequencyChange(frequency) },
+                        selected = uiState.selectedFrequency == frequency
                     )
                 }
             }
@@ -184,14 +198,8 @@ fun RegisterHabitsScreen(
             Days.entries.forEach { day ->
                 DayButton(
                     day = day,
-                    onSelectDay = {
-                        if (selectedDays.contains(day)) {
-                            selectedDays.remove(day)
-                        } else {
-                            selectedDays.add(day)
-                        }
-                    },
-                    selected = selectedDays.contains(day)
+                    onSelectDay = { viewModel.onDaySelected(day) },
+                    selected = uiState.selectedDays.contains(day)
                 )
             }
         }
@@ -210,14 +218,9 @@ fun RegisterHabitsScreen(
                     .weight(1f)
             )
             Switch(
-                checked = selectedDays.size == Days.entries.size,
+                checked = uiState.selectedDays.size == Days.entries.size,
                 onCheckedChange = { isChecked ->
-                    if (isChecked) {
-                        selectedDays.clear()
-                        selectedDays.addAll(Days.entries)
-                    } else {
-                        selectedDays.clear()
-                    }
+                    viewModel.onToggleDaily(isChecked)
                 },
                 modifier = Modifier.padding(end = 16.dp),
                 colors = SwitchDefaults.colors(
@@ -248,9 +251,9 @@ fun RegisterHabitsScreen(
                     .padding(start = 16.dp, top = 16.dp, end = 16.dp),
             )
             HabitFormTextField(
-                value = pontuation.toString(),
+                value = uiState.pontuation,
                 onValueChange = { newValue ->
-                    pontuation = newValue.toIntOrNull() ?: 0
+                    viewModel.onPontuationChange(newValue)
                 },
                 label = "Pontuação",
                 placeholder = "Ex: 10",
@@ -279,8 +282,8 @@ fun RegisterHabitsScreen(
         )
 
         HabitFormTextField(
-            value = "",
-            onValueChange = {},
+            value = uiState.habitDescription,
+            onValueChange = { viewModel.onDescriptionChange(it) },
             label = "Descrição do hábito",
             placeholder = "Ex: Beber água ao acordar",
             modifier = Modifier
@@ -288,42 +291,102 @@ fun RegisterHabitsScreen(
                 .padding(horizontal = 16.dp),
         )
 
-        TextButton(
-            onClick = {
-                if (habitName.isNotBlank() && selectedIcon != null && pontuation > 0) {
-                    viewModel.registerHabit(
-                        HabitEntity(
-                            title = habitName,
-                            description = "",
-                            category = "Personalizado",
-                            pontuation = pontuation,
-                            days = selectedDays.mapNotNull {
-                                Days.fromValue(it.value)
-                            }.map {
-                                it.value
-                            },
-                            icon = selectedIcon!!.name,
-                            userId = user.uid
+        Text(
+            text = "Selecione a categoria",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp, start = 16.dp, end = 16.dp, bottom = 24.dp),
+        )
+
+        ExposedDropdownMenuBox(
+            expanded = uiState.isDropdownMenuExpanded,
+            onExpandedChange = { viewModel.onToggleCategoryDropdown(it) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                value = uiState.selectedCategory,
+                onValueChange = { }, // Vazio para n permitir edição direta do campo de texto
+                readOnly = true,
+                label = { Text("Categoria") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = uiState.isDropdownMenuExpanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    focusedIndicatorColor = MaterialTheme.colorScheme.tertiary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedTextColor = MaterialTheme.colorScheme.tertiary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedContainerColor = MaterialTheme.colorScheme.background,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                    focusedTrailingIconColor = MaterialTheme.colorScheme.tertiary,
+                    unfocusedTrailingIconColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedLabelColor = MaterialTheme.colorScheme.tertiary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.primaryContainer,
+                ),
+                shape = RoundedCornerShape(16.dp),
+            )
+            ExposedDropdownMenu(
+                expanded = uiState.isDropdownMenuExpanded,
+                onDismissRequest = { viewModel.onToggleCategoryDropdown(false) },
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .background(MaterialTheme.colorScheme.surface),
+            ) {
+                uiState.categories.forEach { option ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = option,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        },
+                        onClick = { viewModel.onCategoryChanged(option) },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        colors = MenuDefaults.itemColors(
+                            textColor = MaterialTheme.colorScheme.tertiary,
                         )
                     )
+                }
+            }
+        }
+
+        TextButton(
+            onClick = {
+                if (!uiState.isSaving) { // Verifica se já não está salvando para evitar múltiplos cliques
+                    viewModel.attemptRegisterHabit(userId = user.uid)
                 }
             },
             modifier = Modifier
                 .wrapContentWidth()
                 .padding(24.dp)
+                .background(brush = gradient, shape = RoundedCornerShape(16.dp))
                 .wrapContentHeight(),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
+                containerColor = Color.Transparent,
                 contentColor = MaterialTheme.colorScheme.onTertiary
-            )
+            ),
+            enabled = !uiState.isSaving // Desabilita o botão enquanto está salvando
         ) {
-            Text(
-                text = "Adicionar Hábito",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .padding(4.dp),
-            )
+            if (uiState.isSaving) {
+                CircularWavyProgressIndicator(
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .padding(4.dp),
+                )
+            } else {
+                Text(
+                    text = "Adicionar Hábito",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .padding(4.dp),
+                )
+            }
         }
     }
 }
@@ -384,7 +447,7 @@ private fun FrequencyButton(
         Text(
             text = frequency,
             color = color,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
@@ -431,7 +494,7 @@ fun IconSelectorDialog(
         onDismissRequest = { onDismiss() }
     ) {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .clip(RoundedCornerShape(24.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .size(300.dp, 400.dp)
@@ -442,8 +505,8 @@ fun IconSelectorDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Selecione um ícone",
-                    style = MaterialTheme.typography.titleLarge,
+                    text = "Selecione um ícone:",
+                    style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
