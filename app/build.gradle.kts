@@ -103,4 +103,14 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.14.0"))
     implementation("com.google.firebase:firebase-analytics")
+
+    // Authentication
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+    val credentialManagerVersion = "1.5.0-alpha05"
+    implementation("androidx.credentials:credentials:$credentialManagerVersion")
+    implementation("androidx.credentials:credentials-play-services-auth:$credentialManagerVersion")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    
 }
