@@ -305,7 +305,7 @@ fun StatsCard(
             .padding(horizontal = 16.dp)
             .shadow(2.dp, RoundedCornerShape(16.dp))
             .background(
-                color = MaterialTheme.colorScheme.surface,
+                color = Color.White,
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(16.dp)
@@ -381,17 +381,17 @@ fun StatsCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text("TAXA DE SUCESSO", fontSize = 12.sp, color = Color.Gray)
-                Text("$taxaSucesso%", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("TAXA DE SUCESSO", fontSize = 14.sp, color = Color.Gray)
+                Text("$taxaSucesso%", fontSize = 18.sp, color = Color(0xFF5EC900), fontWeight = FontWeight.Bold)
             }
 
             Column(horizontalAlignment = Alignment.End) {
-                Text("PONTOS CONQUISTADOS", fontSize = 12.sp, color = Color.Gray)
+                Text("PONTOS CONQUISTADOS", fontSize = 14.sp, color = Color.Gray)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
                             .size(24.dp)
-                            .background(Color(0xFFFFF9C4), shape = CircleShape),
+                            .background(Color(0xFFFFD500), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
 //                        Icon(
@@ -404,8 +404,8 @@ fun StatsCard(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         "$pontos",
-                        fontSize = 16.sp,
-                        color = Color(0xFFFFC107),
+                        fontSize = 18.sp,
+                        color = Color(0xFFF2B600),
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -420,12 +420,12 @@ fun StatsCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text("HÁBITOS COMPLETADOS", fontSize = 12.sp, color = Color.Gray)
+                Text("HÁBITOS COMPLETADOS", fontSize = 14.sp, color = Color.Gray)
                 Text("$completados", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
 
             Column(horizontalAlignment = Alignment.End) {
-                Text("HÁBITOS PULADOS", fontSize = 12.sp, color = Color.Gray)
+                Text("HÁBITOS PULADOS", fontSize = 14.sp, color = Color.Gray)
                 Text(
                     "$pulados",
                     fontSize = 18.sp,
