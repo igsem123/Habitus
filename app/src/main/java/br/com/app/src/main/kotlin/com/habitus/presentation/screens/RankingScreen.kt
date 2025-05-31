@@ -66,6 +66,8 @@ fun RankingScreen(
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
+        Text("Ranking", color = Color.Black, fontWeight = FontWeight.Bold)
+
         // Selecionador de tipo de ranking
         RankingTypeSelector(selectedRange, onRangeChange)
 
@@ -140,30 +142,6 @@ fun RankingTypeSelector(
     }
 }
 
-
-
-
-//@Composable
-//fun DateNavigator(
-//    range: RankingRange,
-//    currentDate: LocalDate,
-//    onDateChange: (LocalDate) -> Unit
-//) {
-//    val formatter = range.getFormatter()
-//    Row(
-//        modifier = Modifier.fillMaxWidth(),
-//        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.SpaceBetween
-//    ) {
-//        IconButton(onClick = { onDateChange(range.previous(currentDate)) }) {
-//            Icon(Icons.Filled.ArrowBack, contentDescription = "Anterior")
-//        }
-//        Text("Essa ${range.displayName.lowercase()} - ${currentDate.format(formatter)}")
-//        IconButton(onClick = { onDateChange(range.next(currentDate)) }) {
-//            Icon(Icons.Filled.ArrowForward, contentDescription = "Próxima")
-//        }
-//    }
-//}
 
 @Composable
 fun DateNavigator(
@@ -252,40 +230,6 @@ fun DateNavigator(
         }
     }
 }
-
-
-
-//@Composable
-//fun DateNavigator(
-//    range: RankingRange,
-//    currentDate: LocalDate,
-//    onDateChange: (LocalDate) -> Unit
-//) {
-//    val formatter = range.getFormatter()
-//    Row(
-//        modifier = Modifier.fillMaxWidth(),
-//        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.SpaceBetween
-//    ) {
-//        // Texto com a data formatada
-//        Text("Essa ${range.displayName.lowercase()} - ${currentDate.format(formatter)}")
-//
-//        // Usando apenas Text ou Button para navegação
-//        Button(
-//            onClick = { onDateChange(range.previous(currentDate)) },
-//            modifier = Modifier.padding(end = 8.dp) // Adiciona um pequeno espaçamento
-//        ) {
-//            Text("<")
-//        }
-//
-//        Button(
-//            onClick = { onDateChange(range.next(currentDate)) },
-//            modifier = Modifier.padding(start = 8.dp) // Adiciona um pequeno espaçamento
-//        ) {
-//            Text(">")
-//        }
-//    }
-//}
 
 @Composable
 fun StatsCard(
@@ -420,7 +364,7 @@ fun StatsCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text("HÁBITOS COMPLETADOS", fontSize = 14.sp, color = Color.Gray)
+                Text("HÁBITOS CONCLUÍDOS", fontSize = 14.sp, color = Color.Gray)
                 Text("$completados", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
 
