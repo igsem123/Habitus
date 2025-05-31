@@ -7,7 +7,11 @@ interface HabitRepository {
 
     suspend fun getAllHabits(): List<HabitEntity>
 
-    suspend fun deleteHabit(habitId: String)
+    suspend fun getCompletedHabits(): Int
+
+    suspend fun deleteHabit(habitId: Long)
 
     suspend fun updateHabit(habit: HabitEntity)
+
+    suspend fun getHabitsCount() : Int
 }
