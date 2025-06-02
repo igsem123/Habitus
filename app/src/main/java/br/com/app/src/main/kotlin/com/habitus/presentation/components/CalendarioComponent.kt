@@ -1,5 +1,6 @@
 package br.com.app.src.main.kotlin.com.habitus.presentation.components
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -51,7 +52,10 @@ private val dateFormatter = DateTimeFormatter.ofPattern("dd")
  * Permite selecionar um dia específico.
  */
 @Composable
-fun CalendarioComponent(modifier: Modifier = Modifier) {
+fun CalendarioComponent(
+    modifier: Modifier = Modifier,
+    onSelectedDay: (LocalDate) -> Unit = {}
+) {
     val currentDate = remember { LocalDate.now() }
     val startDate = remember { currentDate.minusDays(500) }
     val endDate = remember { currentDate.plusDays(500) }
@@ -85,6 +89,9 @@ fun CalendarioComponent(modifier: Modifier = Modifier) {
                     if (selection != clicked) {
                         selection = clicked
                     }
+
+                    Log.d("CalendarioComponent", "Dia selecionado: $clicked")
+                    onSelectedDay(clicked)
                 }
             },
         )

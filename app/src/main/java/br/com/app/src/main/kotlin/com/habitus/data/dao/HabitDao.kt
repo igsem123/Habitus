@@ -16,7 +16,7 @@ interface HabitDao {
     suspend fun getAllHabits(): List<HabitEntity>
 
     @Query("DELETE FROM habits WHERE id = :habitId")
-    suspend fun deleteHabit(habitId: String)
+    suspend fun deleteHabit(habitId: Long)
 
     @Query("UPDATE habits SET title = :title, description = :description, isCompleted = :isCompleted, category = :category, pontuation = :pontuation, days = :days WHERE id = :habitId")
     suspend fun updateHabit(
@@ -26,6 +26,12 @@ interface HabitDao {
         isCompleted: Boolean,
         category: String,
         pontuation: Int,
-        days: String
+        days: List<Int>
     )
+
+    @Query("SELECT COUNT(*) FROM habits WHERE isCompleted = 1")
+    fun getCompletedHabits(): Int
+
+    @Query("SELECT COUNT(*) FROM habits")
+    fun getHabitsCount(): Int
 }

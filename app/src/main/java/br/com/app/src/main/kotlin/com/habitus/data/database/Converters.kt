@@ -14,7 +14,8 @@ class Converters {
     }
 
     @TypeConverter
-    fun toIntList(data: String): List<Int> {
-        return if (data.isEmpty()) emptyList() else data.split(",").map { it.toInt() }
+    fun toListInt(value: String): List<Int> {
+        return if (value.isEmpty()) emptyList()
+        else value.split(",").map { it.trim().toInt() }
     }
 }
