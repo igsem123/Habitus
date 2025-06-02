@@ -2,93 +2,83 @@ package br.com.app.src.main.kotlin.com.habitus.presentation.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.runtime.Composable
-import java.time.LocalDate
-
-
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import java.time.format.DateTimeFormatter
-
-//import androidx.compose.material.icons.Icons
-//import androidx.compose.material.icons.filled.*
-
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.RankingViewModel
 import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
-
 @Composable
 fun RankingScreen(
-    selectedRange: RankingRange = RankingRange.SEMANAL,
-    selectedDate: LocalDate = LocalDate.now(),
-    selectedHabit: String = "Todos os hábitos",
-    onRangeChange: (RankingRange) -> Unit,
-    onDateChange: (LocalDate) -> Unit,
-    onHabitChange: (String) -> Unit
+    viewModel: RankingViewModel = hiltViewModel()
 ) {
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    val uiState by viewModel.uiState.collectAsState()
 
-        Text("Ranking", color = Color.Black, fontWeight = FontWeight.Bold)
+    LaunchedEffect(
+        uiState.selectedDate,
+        uiState.selectedRange,
+        uiState.selectedCategory
+    ) {
+        viewModel.loadStats()
+    }
 
-        // Selecionador de tipo de ranking
-        RankingTypeSelector(selectedRange, onRangeChange)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+
+        Text("Ranking", color = Color.Black, style = MaterialTheme.typography.headlineMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Texto com data atual e setas para navegar
-        DateNavigator(selectedRange, selectedDate, onDateChange)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Card com estatísticas
-        StatsCard(
-//            selectedHabit = selectedHabit,
-//            onHabitChange = onHabitChange,
-//            stats = HabitStats(85, 120, 12, 3) // Dados fictícios
+        RankingTypeSelector(
+            selected = uiState.selectedRange,
+            onSelect = viewModel::onRangeChange
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Card para gráfico (placeholder)
-        Card(modifier = Modifier.fillMaxWidth().height(200.dp)) {
+        DateNavigator(
+            range = uiState.selectedRange,
+            currentDate = uiState.selectedDate,
+            onDateChange = viewModel::onDateChange
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        StatsCard(
+            selectedCategoria = uiState.selectedCategory,
+            onCategoriaChange = viewModel::onCategoryChange,
+            taxaSucesso = uiState.successRate,
+            pontos = uiState.points,
+            completados = uiState.completed,
+            pulados = uiState.skipped
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        ) {
             Box(contentAlignment = Alignment.Center) {
                 Text("Gráfico será implementado aqui")
             }
@@ -101,18 +91,23 @@ fun RankingTypeSelector(
     selected: RankingRange,
     onSelect: (RankingRange) -> Unit
 ) {
-    val options = listOf(RankingRange.DIARIO, RankingRange.SEMANAL, RankingRange.MENSAL, RankingRange.ANUAL)
+    val options = listOf(
+        RankingRange.DIARIO,
+        RankingRange.SEMANAL,
+        RankingRange.MENSAL,
+        RankingRange.ANUAL
+    )
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .background(color = Color(0xFFEAECF0), shape = RoundedCornerShape(24.dp))
-            .padding(4.dp) // Espaço interno entre fundo e botões
+            .padding(4.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp) // Espaço entre botões
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             options.forEach { option ->
                 val isSelected = option == selected
@@ -141,7 +136,6 @@ fun RankingTypeSelector(
         }
     }
 }
-
 
 @Composable
 fun DateNavigator(
@@ -177,29 +171,18 @@ fun DateNavigator(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Textos alinhados à esquerda
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = label,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-            Text(
-                text = sublabel,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
+            Text(text = label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = sublabel, fontSize = 14.sp, color = Color.Gray)
         }
 
-        // Botões com estilo quadrado e bordas arredondadas
         Row {
             Button(
                 onClick = { onDateChange(range.previous(currentDate)) },
-                modifier = Modifier
-                    .size(36.dp), // Largura = Altura = quadrado
+                modifier = Modifier.size(36.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = Color(0xFF686873)
@@ -207,16 +190,13 @@ fun DateNavigator(
                 border = BorderStroke(1.dp, Color(0xFFEAECF0)),
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(0.dp)
-            ) {
-                Text("<")
-            }
+            ) { Text("<") }
 
             Spacer(modifier = Modifier.width(8.dp))
 
             Button(
                 onClick = { onDateChange(range.next(currentDate)) },
-                modifier = Modifier
-                    .size(36.dp),
+                modifier = Modifier.size(36.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = Color(0xFF686873)
@@ -224,9 +204,7 @@ fun DateNavigator(
                 border = BorderStroke(1.dp, Color(0xFFEAECF0)),
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(0.dp)
-            ) {
-                Text(">")
-            }
+            ) { Text(">") }
         }
     }
 }
@@ -248,45 +226,24 @@ fun StatsCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .shadow(2.dp, RoundedCornerShape(16.dp))
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(16.dp)
-            )
+            .background(color = Color.White, shape = RoundedCornerShape(16.dp))
             .padding(16.dp)
     ) {
-        // Linha superior
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // Ícone arredondado
             Box(
                 modifier = Modifier
                     .size(48.dp)
                     .background(Color(0xFFF5F5F5), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
-            ) {
-//                Icon(
-//                    imageVector = Icons.Default.Star,
-//                    contentDescription = null,
-//                    tint = MaterialTheme.colorScheme.primary
-//                )
-            }
+            ) {}
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Título e subtítulo
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = selectedCategoria,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = "Resumo",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+                Text(text = selectedCategoria, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(text = "Resumo", fontSize = 14.sp, color = Color.Gray)
             }
 
-            // Dropdown
             Box {
                 TextButton(
                     onClick = { expanded = true },
@@ -319,7 +276,6 @@ fun StatsCard(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Linha 1 - Sucesso e Pontos
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -337,28 +293,15 @@ fun StatsCard(
                             .size(24.dp)
                             .background(Color(0xFFFFD500), shape = CircleShape),
                         contentAlignment = Alignment.Center
-                    ) {
-//                        Icon(
-//                            //imageVector = Icons.Default.EmojiEvents,
-//                            contentDescription = null,
-//                            tint = Color(0xFFFFC107),
-//                            modifier = Modifier.size(16.dp)
-//                        )
-                    }
+                    ) {}
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        "$pontos",
-                        fontSize = 18.sp,
-                        color = Color(0xFFF2B600),
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text("$pontos", fontSize = 18.sp, color = Color(0xFFF2B600), fontWeight = FontWeight.Bold)
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Linha 2 - Completados e Pulados
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -370,17 +313,11 @@ fun StatsCard(
 
             Column(horizontalAlignment = Alignment.End) {
                 Text("HÁBITOS PULADOS", fontSize = 14.sp, color = Color.Gray)
-                Text(
-                    "$pulados",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Red
-                )
+                Text("$pulados", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Red)
             }
         }
     }
 }
-
 
 enum class RankingRange(val displayName: String) {
     DIARIO("Diário"),
@@ -401,21 +338,7 @@ enum class RankingRange(val displayName: String) {
         MENSAL -> date.plusMonths(1)
         ANUAL -> date.plusYears(1)
     }
-
-    fun getFormatter(): DateTimeFormatter = when (this) {
-        DIARIO -> DateTimeFormatter.ofPattern("dd/MM/yyyy")
-        SEMANAL -> DateTimeFormatter.ofPattern("'semana de' dd/MM")
-        MENSAL -> DateTimeFormatter.ofPattern("MMMM/yyyy")
-        ANUAL -> DateTimeFormatter.ofPattern("yyyy")
-    }
 }
-
-data class HabitStats(
-    val successRate: Int,
-    val points: Int,
-    val completed: Int,
-    val skipped: Int
-)
 
 fun isCurrentWeek(date: LocalDate): Boolean {
     val now = LocalDate.now()
