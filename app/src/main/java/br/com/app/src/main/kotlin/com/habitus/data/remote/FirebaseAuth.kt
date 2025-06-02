@@ -4,17 +4,6 @@ import com.google.firebase.Firebase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-@Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
-
-}
-
-@Preview
-@Composable
-private fun LoginPreview() {
-    Authenti
-}
-
 class FirebaseAuth {
 
     private val auth = Firebase.auth

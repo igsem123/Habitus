@@ -1,5 +1,6 @@
 package br.com.app.src.main.kotlin.com.habitus.presentation.screens
 
+import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.AuthViewModel
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.EaseInOut
@@ -65,6 +66,9 @@ import compose.icons.lineawesomeicons.Envelope
 import compose.icons.lineawesomeicons.LockSolid
 import compose.icons.lineawesomeicons.User
 import compose.icons.lineawesomeicons.UserLockSolid
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsState
+import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthResponde
 
 /**
  * Tela inicial do app com navegação entre splash, cadastro e login por swipe vertical.
@@ -190,12 +194,19 @@ fun SplashContent() {
  */
 
 @Composable
-fun CadastroForm(onNavigateToHome: () -> Unit, onGoToLogin: () -> Unit) {
+fun CadastroForm(onNavigateToHome: () -> Unit, onGoToLogin: () -> Unit, viewModel: AuthViewModel = hiltViewModel()) {
     //Campos do formulário de cadastro
     var nome by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
     var confirmarSenha by remember { mutableStateOf("") }
+
+    val authState by viewModel.authState.collectAsState()
+
+    if (authState is AuthResponde.Success) {
+        viewModel.resetState()
+        onNavigateToHome()
+    }
 
     Column(
         modifier = Modifier
@@ -322,7 +333,11 @@ fun CadastroForm(onNavigateToHome: () -> Unit, onGoToLogin: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { onNavigateToHome() },
+                onClick = {
+                    if (senha == confirmarSenha) {
+                        viewModel.register(email, senha)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -330,6 +345,15 @@ fun CadastroForm(onNavigateToHome: () -> Unit, onGoToLogin: () -> Unit) {
                 shape = RoundedCornerShape(50)
             ) {
                 Text("Cadastrar", color = Color.White)
+            }
+
+            // Mostrar erro se houver
+            if (authState is AuthResponde.Error) {
+                Text(
+                    text = (authState as AuthResponde.Error).message,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -360,10 +384,17 @@ fun CadastroForm(onNavigateToHome: () -> Unit, onGoToLogin: () -> Unit) {
  */
 
 @Composable
-fun LoginForm(onNavigateToHome: () -> Unit, onGoToCadastro: () -> Unit) {
+fun LoginForm(onNavigateToHome: () -> Unit, onGoToCadastro: () -> Unit, viewModel: AuthViewModel = hiltViewModel() ) {
     //Campos do formulário de login
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
+
+    val authState by viewModel.authState.collectAsState()
+
+    if (authState is AuthResponde.Success) {
+        viewModel.resetState()
+        onNavigateToHome()
+    }
 
     Column(
         modifier = Modifier
@@ -445,7 +476,7 @@ fun LoginForm(onNavigateToHome: () -> Unit, onGoToCadastro: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { onNavigateToHome() },
+                onClick = { viewModel.login(email, senha) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -453,6 +484,15 @@ fun LoginForm(onNavigateToHome: () -> Unit, onGoToCadastro: () -> Unit) {
                 shape = RoundedCornerShape(50)
             ) {
                 Text("Entrar", color = Color.White)
+            }
+
+            // Mostrar erro se houver
+            if (authState is AuthResponde.Error) {
+                Text(
+                    text = (authState as AuthResponde.Error).message,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
