@@ -40,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,7 +68,6 @@ import compose.icons.lineawesomeicons.LockSolid
 import compose.icons.lineawesomeicons.User
 import compose.icons.lineawesomeicons.UserLockSolid
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsState
 import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthResponde
 
 /**

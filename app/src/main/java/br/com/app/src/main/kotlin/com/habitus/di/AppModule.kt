@@ -5,6 +5,7 @@ import androidx.room.Room
 import br.com.app.src.main.kotlin.com.habitus.data.database.HabitusDatabase
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepositoryImpl
+import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,4 +31,9 @@ class AppModule : Application() {
     fun provideHabitRepository(database: HabitusDatabase): HabitRepository {
         return HabitRepositoryImpl(database)
     }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth() : FirebaseAuth =
+        FirebaseAuth.getInstance()
 }

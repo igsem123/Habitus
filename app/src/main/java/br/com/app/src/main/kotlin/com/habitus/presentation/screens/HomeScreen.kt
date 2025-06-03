@@ -37,6 +37,7 @@ import androidx.lifecycle.viewModelScope
 import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.CalendarioComponent
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.CardHabits
+import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.AuthViewModel
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.HabitsViewModel
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.HabitusTheme
 import kotlinx.coroutines.launch
@@ -44,10 +45,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
-    user: UserEntity,
     onNavigateToRegisterHabits: () -> Unit = {},
-    viewModel: HabitsViewModel = hiltViewModel()
+    viewModel: HabitsViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
+    val user by authViewModel.user.collectAsState()
     val uiState by viewModel.homeUiState.collectAsState()
     val completed by viewModel.completedTasksCount.collectAsState()
     val total by viewModel.totalTasksCount.collectAsState()
@@ -167,6 +169,6 @@ fun HomeScreen(
 @Composable
 fun HabitsScreenPreview() {
     HabitusTheme {
-        HomeScreen(user = UserEntity("João", "", "", ""))
+        HomeScreen()
     }
 }
