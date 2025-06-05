@@ -8,11 +8,15 @@ interface HabitRepository {
 
     suspend fun getAllHabits(): List<HabitEntity>
 
-    suspend fun deleteHabit(habitId: String)
+    suspend fun getCompletedHabits(): Int
+
+    suspend fun deleteHabit(habitId: Long)
 
     suspend fun updateHabit(habit: HabitEntity)
 
     suspend fun insertLog(log: HabitLogEntity)
 
     suspend fun filterHabitsByPeriod(inicioPeriodo: Long, fimPeriodo: Long): List<HabitLogEntity>
+
+    suspend fun getHabitsCount() : Int
 }

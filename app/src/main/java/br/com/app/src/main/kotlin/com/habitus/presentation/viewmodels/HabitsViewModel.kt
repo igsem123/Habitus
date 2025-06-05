@@ -1,11 +1,13 @@
 package br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels
 
+import android.util.Log
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.app.src.main.kotlin.com.habitus.data.entity.Days
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
+import br.com.app.src.main.kotlin.com.habitus.presentation.states.HomeUiState
 import br.com.app.src.main.kotlin.com.habitus.presentation.states.RegisterHabitUiState
 import compose.icons.AllIcons
 import compose.icons.LineAwesomeIcons
@@ -18,21 +20,26 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.LocalDate
 
 @HiltViewModel
 class HabitsViewModel @Inject constructor(
     private val repository: HabitRepository
 ) : ViewModel() {
 
-    private val _habits = MutableStateFlow<List<HabitEntity>>(emptyList())
-    val habits: StateFlow<List<HabitEntity>> = _habits.asStateFlow()
+    private val _homeUiState = MutableStateFlow<HomeUiState?>(null)
+    val homeUiState: StateFlow<HomeUiState?> = _homeUiState.asStateFlow()
 
     // StateFlow para o UiState da tela de registro
     private val _registerUiState = MutableStateFlow(RegisterHabitUiState())
     val registerUiState: StateFlow<RegisterHabitUiState> = _registerUiState.asStateFlow()
 
-    private val allIcons = LineAwesomeIcons.AllIcons
+    private val _completedTasksCount = MutableStateFlow(0)
+    val completedTasksCount: StateFlow<Int> = _completedTasksCount.asStateFlow()
 
+    private val _totalTasksCount = MutableStateFlow(0)
+    val totalTasksCount: StateFlow<Int> = _totalTasksCount.asStateFlow()
 
     init {
         // Inicializa o ViewModel obtendo todos os hábitos do repositório
@@ -41,7 +48,7 @@ class HabitsViewModel @Inject constructor(
         }
     }
 
-    // -- Funções para manipular o estado do registro de hábitos --
+    // Funções para manipular o estado do registro de hábitos
 
     fun onHabitNameChange(name: String) {
         _registerUiState.update { it.copy(habitName = name, error = null) }
@@ -107,7 +114,7 @@ class HabitsViewModel @Inject constructor(
         _registerUiState.update { it.copy(error = null) }
     }
 
-    // --- Funções de Lógica de Negócio (Registro) ---
+    // Funções de Lógica de Negócio (Registro)
 
     /**
      * Registra um novo hábito inserindo no banco de dados por meio do repositório.
@@ -170,10 +177,11 @@ class HabitsViewModel @Inject constructor(
      *
      * @return Uma lista de HabitEntity representando todos os hábitos.
      */
-    suspend fun getAllHabits(): List<HabitEntity> {
+    suspend fun getAllHabits() {
         val habitsList = repository.getAllHabits()
-        _habits.value = habitsList
-        return habitsList
+        _homeUiState.value = HomeUiState(habits = habitsList)
+        _totalTasksCount.value = repository.getHabitsCount()
+        _completedTasksCount.value = repository.getCompletedHabits()
     }
 
     /**
@@ -181,9 +189,15 @@ class HabitsViewModel @Inject constructor(
      *
      * @param habit O objeto HabitEntity que contém as informações atualizadas do hábito.
      */
-    suspend fun updateHabit(habit: HabitEntity) {
-        repository.updateHabit(habit)
-        getAllHabits() // Atualiza a lista de hábitos após a atualização
+    fun updateHabit(habit: HabitEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                repository.updateHabit(habit)
+                getAllHabits() // Atualiza a lista de hábitos após a atualização
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     /**
@@ -191,8 +205,56 @@ class HabitsViewModel @Inject constructor(
      *
      * @param habitId O ID do hábito a ser excluído.
      */
-    suspend fun deleteHabit(habitId: String) {
-        repository.deleteHabit(habitId)
-        getAllHabits() // Atualiza a lista de hábitos após a exclusão
+    fun deleteHabit(habitId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Chama o repositório para excluir o hábito
+                repository.deleteHabit(habitId)
+                getAllHabits()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    /**
+     * Marca um hábito como concluído ou não concluído.
+     *
+     * @param isCompleted Indica se o hábito foi concluído (true) ou não (false).
+     * @param entity O objeto HabitEntity que representa o hábito a ser atualizado.
+     */
+    fun checkHabit(isCompleted: Boolean, entity: HabitEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val updatedHabit = entity.copy(isCompleted = isCompleted)
+
+                // Atualiza o hábito no repositório
+                repository.updateHabit(updatedHabit)
+                getAllHabits()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    /**
+     * Filtra os hábitos com base no dia selecionado.
+     *
+     * @param selectedDate A data selecionada para filtrar os hábitos.
+     */
+    fun filterHabitsByDay(selectedDate: LocalDate) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val allHabits = repository.getAllHabits()
+            val dayOfWeek = selectedDate.dayOfWeek.value // 1 = Segunda ... 7 = Domingo
+
+            // Filtra os hábitos com base no dia da semana
+            val filteredHabits = allHabits.filter { habit ->
+                habit.days.contains(dayOfWeek)
+            }
+
+            withContext(Dispatchers.Main) {
+                _homeUiState.value = _homeUiState.value?.copy(habits = filteredHabits)
+            }
+        }
     }
 }

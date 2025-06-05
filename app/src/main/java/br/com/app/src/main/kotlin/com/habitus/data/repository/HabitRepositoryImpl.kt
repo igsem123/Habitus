@@ -16,7 +16,11 @@ class HabitRepositoryImpl @Inject constructor(
         return db.habitDao().getAllHabits()
     }
 
-    override suspend fun deleteHabit(habitId: String) {
+    override suspend fun getCompletedHabits(): Int {
+        return db.habitDao().getCompletedHabits()
+    }
+
+    override suspend fun deleteHabit(habitId: Long) {
         db.habitDao().deleteHabit(habitId)
     }
 
@@ -28,7 +32,7 @@ class HabitRepositoryImpl @Inject constructor(
             habit.isCompleted,
             habit.category,
             habit.pontuation,
-            habit.days.toString()
+            habit.days
         )
     }
 
@@ -43,5 +47,8 @@ class HabitRepositoryImpl @Inject constructor(
         fimPeriodo: Long
     ): List<HabitLogEntity> {
        return db.habitDao().filterHabitsByPeriod(inicioPeriodo, fimPeriodo)
+
+    override suspend fun getHabitsCount(): Int {
+        return db.habitDao().getHabitsCount()
     }
 }
