@@ -13,9 +13,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -29,7 +31,9 @@ import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinatio
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.initialFormNavigation
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToRegisterHabits
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.registerHabitsNavigation
+import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.AuthViewModel
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.HabitusTheme
+import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -45,29 +49,45 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+fun FirebaseUser.toUserEntity(): UserEntity {
+    return UserEntity(
+        email = this.email.orEmpty(),
+        password = "", // Nunca armazenar a senha real!
+        uid = this.uid,
+        username = this.displayName ?: this.email.orEmpty().substringBefore("@")
+    )
+}
+
+
 @Composable
 fun Habitus(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val navRoute = navBackStackEntry?.destination?.route
-    val user = UserEntity(
-        email = "jota.jota@gmail.com",
-        password = "password123",
-        uid = "daoksdaskookasdko",
-        username = "jotinha123",
-    )
+
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val firebaseUser by authViewModel.user.collectAsState()
+
+    val user = firebaseUser?.toUserEntity()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             when (navRoute) {
                 INITIAL_FORM_ROUTE -> TopAppBarForOtherScreens(isBackIconVisible = false)
-                HOME_ROUTE -> TopAppBarForHomeScreen(
-                    user = user,
-                    onNavigateToRegisterHabits = {
-                        navController.navigateToRegisterHabits()
+                HOME_ROUTE -> {
+                    if(user != null) {
+                        TopAppBarForHomeScreen(
+                            user = user,
+                            onNavigateToRegisterHabits = {
+                                navController.navigateToRegisterHabits()
+                            }
+                        )
+                    } else {
+                        TopAppBarForOtherScreens()
                     }
-                )
+                }
+
                 REGISTER_HABITS_ROUTE -> TopAppBarForOtherScreens(
                     title = "Novo Hábito",
                     onIconClick = {
