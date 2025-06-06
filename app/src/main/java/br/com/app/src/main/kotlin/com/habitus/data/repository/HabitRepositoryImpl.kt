@@ -46,7 +46,8 @@ class HabitRepositoryImpl @Inject constructor(
         inicioPeriodo: Long,
         fimPeriodo: Long
     ): List<HabitLogEntity> {
-       return db.habitDao().filterHabitsByPeriod(inicioPeriodo, fimPeriodo)
+        return db.habitDao().filterHabitsByPeriod(inicioPeriodo, fimPeriodo)
+    }
 
     override suspend fun getHabitsCount(): Int {
         return db.habitDao().getHabitsCount()

@@ -350,12 +350,5 @@ fun isCurrentWeek(date: LocalDate): Boolean {
 @Preview(showBackground = true)
 @Composable
 fun PreviewRankingScreen() {
-    RankingScreen(
-        selectedRange = RankingRange.SEMANAL,
-        selectedDate = LocalDate.now(),
-        selectedHabit = "Exercício",
-        onRangeChange = {},
-        onDateChange = {},
-        onHabitChange = {}
-    )
+    RankingScreen()
 }

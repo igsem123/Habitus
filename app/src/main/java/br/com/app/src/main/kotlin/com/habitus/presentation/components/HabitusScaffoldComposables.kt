@@ -10,14 +10,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -27,8 +36,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import br.com.app.src.main.kotlin.com.habitus.R
 import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
+import compose.icons.FontAwesomeIcons
 import compose.icons.LineAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.Award
 import compose.icons.lineawesomeicons.ArrowLeftSolid
+import compose.icons.lineawesomeicons.AwardSolid
+import compose.icons.lineawesomeicons.CogSolid
+import compose.icons.lineawesomeicons.HomeSolid
 import compose.icons.lineawesomeicons.PlusSolid
 
 @Composable
@@ -132,6 +147,93 @@ fun TopAppBarForHomeScreen(
         ) {
             Text("Olá, ${user.username}!", color = Color.White, fontWeight = FontWeight.Bold)
             Text("Vamos criar hábitos!", color = Color.White.copy(alpha = 0.8f))
+        }
+    }
+}
+
+@Composable
+fun BottomAppBar(
+    selectedIcon: Boolean = false,
+    onHomeClick: () -> Unit = {},
+    onRankingClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {}
+) {
+    var isSelected by remember { mutableStateOf(selectedIcon) }
+
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .shadow(2.dp, shape = MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
+            .fillMaxWidth()
+            .height(54.dp)
+            .background(color = MaterialTheme.colorScheme.surface),
+        contentAlignment =  Alignment.Center,
+    ) {
+        Row(
+            modifier = Modifier
+                .matchParentSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            IconButton(
+                onClick = {
+                    onHomeClick()
+                },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .height(28.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(color = MaterialTheme.colorScheme.surfaceTint.copy(0.1f))
+            ) {
+                Icon(
+                    imageVector = LineAwesomeIcons.HomeSolid,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            VerticalDivider(
+                modifier = Modifier
+                    .padding(8.dp)
+            )
+
+            IconButton(
+                onClick = {
+                    onRankingClick()
+                },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(48.dp)
+            ) {
+                Icon(
+                    imageVector = LineAwesomeIcons.AwardSolid,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier
+                        .size(36.dp)
+                )
+            }
+
+            VerticalDivider(
+                modifier = Modifier
+                    .padding(8.dp)
+            )
+
+            IconButton(
+                onClick = {
+                    onSettingsClick()
+                },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(48.dp)
+            ) {
+                Icon(
+                    imageVector = LineAwesomeIcons.CogSolid,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiary
+                )
+            }
         }
     }
 }

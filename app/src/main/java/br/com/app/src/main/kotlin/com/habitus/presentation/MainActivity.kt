@@ -14,12 +14,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
+import br.com.app.src.main.kotlin.com.habitus.presentation.components.BottomAppBar
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.TopAppBarForHomeScreen
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.TopAppBarForOtherScreens
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.HOME_ROUTE
@@ -60,7 +62,7 @@ fun Habitus(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            when (navRoute) {
+            when(navRoute) {
                 INITIAL_FORM_ROUTE -> TopAppBarForOtherScreens(isBackIconVisible = false)
                 HOME_ROUTE -> TopAppBarForHomeScreen(
                     user = user,
@@ -82,7 +84,8 @@ fun Habitus(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
+            contentAlignment = Alignment.BottomCenter
         ) {
             NavHost(
                 navController = navController,
@@ -91,6 +94,10 @@ fun Habitus(modifier: Modifier = Modifier) {
                 initialFormNavigation(navController)
                 homeNavigation(navController)
                 registerHabitsNavigation(navController)
+            }
+
+            if(navRoute != INITIAL_FORM_ROUTE) {
+                BottomAppBar()
             }
         }
     }
