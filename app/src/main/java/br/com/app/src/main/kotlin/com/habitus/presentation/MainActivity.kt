@@ -26,11 +26,18 @@ import br.com.app.src.main.kotlin.com.habitus.presentation.components.TopAppBarF
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.TopAppBarForOtherScreens
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.HOME_ROUTE
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.INITIAL_FORM_ROUTE
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.RANKING_ROUTE
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.REGISTER_HABITS_ROUTE
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.SETTINGS_ROUTE
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.homeNavigation
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.initialFormNavigation
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToHome
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToRanking
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToRegisterHabits
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToSettings
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.rankingNavigation
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.registerHabitsNavigation
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.settingsNavigation
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.HabitusTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -62,7 +69,7 @@ fun Habitus(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            when(navRoute) {
+            when (navRoute) {
                 INITIAL_FORM_ROUTE -> TopAppBarForOtherScreens(isBackIconVisible = false)
                 HOME_ROUTE -> TopAppBarForHomeScreen(
                     user = user,
@@ -70,6 +77,7 @@ fun Habitus(modifier: Modifier = Modifier) {
                         navController.navigateToRegisterHabits()
                     }
                 )
+
                 REGISTER_HABITS_ROUTE -> TopAppBarForOtherScreens(
                     title = "Novo Hábito",
                     onIconClick = {
@@ -77,9 +85,23 @@ fun Habitus(modifier: Modifier = Modifier) {
                     },
                     isBackIconVisible = true
                 )
-                else -> TopAppBarForOtherScreens()
+
+                RANKING_ROUTE -> TopAppBarForOtherScreens(
+                    title = "Ranking",
+                    isBackIconVisible = false
+                )
+
+                SETTINGS_ROUTE -> TopAppBarForOtherScreens(
+                    title = "Configurações",
+                    isBackIconVisible = false
+                )
+
+                else -> TopAppBarForOtherScreens(
+                    isBackIconVisible = false
+                )
             }
-        }
+        },
+        containerColor = Color.Transparent
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -94,10 +116,22 @@ fun Habitus(modifier: Modifier = Modifier) {
                 initialFormNavigation(navController)
                 homeNavigation(navController)
                 registerHabitsNavigation(navController)
+                rankingNavigation(navController)
+                settingsNavigation(navController)
             }
 
-            if(navRoute != INITIAL_FORM_ROUTE) {
-                BottomAppBar()
+            if (navRoute != INITIAL_FORM_ROUTE) {
+                BottomAppBar(
+                    onHomeClick = {
+                        navController.navigateToHome()
+                    },
+                    onRankingClick = {
+                        navController.navigateToRanking()
+                    },
+                    onSettingsClick = {
+                        navController.navigateToSettings()
+                    }
+                )
             }
         }
     }

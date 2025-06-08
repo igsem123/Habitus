@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,6 +55,7 @@ fun TopAppBarForOtherScreens(
 ) {
     Box(
         modifier = Modifier
+            .background(color = Color.Transparent)
             .height(120.dp)
             .fillMaxWidth()
             .paint(
@@ -143,7 +145,7 @@ fun TopAppBarForHomeScreen(
         Column(
             modifier = Modifier
                 .align(Alignment.CenterStart)
-                .padding(start = 16.dp, bottom = 8.dp)
+                .padding(start = 16.dp, bottom = 8.dp, top = 28.dp),
         ) {
             Text("Olá, ${user.username}!", color = Color.White, fontWeight = FontWeight.Bold)
             Text("Vamos criar hábitos!", color = Color.White.copy(alpha = 0.8f))
@@ -153,13 +155,15 @@ fun TopAppBarForHomeScreen(
 
 @Composable
 fun BottomAppBar(
-    selectedIcon: Boolean = false,
     onHomeClick: () -> Unit = {},
     onRankingClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
-    var isSelected by remember { mutableStateOf(selectedIcon) }
-
+    val bottomItems = listOf(
+        "Home" to LineAwesomeIcons.HomeSolid,
+        "Ranking" to LineAwesomeIcons.AwardSolid,
+        "Settings" to LineAwesomeIcons.CogSolid
+    )
     Box(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 4.dp)
@@ -176,63 +180,41 @@ fun BottomAppBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            IconButton(
-                onClick = {
-                    onHomeClick()
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .height(28.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(color = MaterialTheme.colorScheme.surfaceTint.copy(0.1f))
-            ) {
-                Icon(
-                    imageVector = LineAwesomeIcons.HomeSolid,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+            // Estado para controlar o item selecionado de acordo com o índice da lista
+            var selectedIndex by remember { mutableIntStateOf(0) }
 
-            VerticalDivider(
-                modifier = Modifier
-                    .padding(8.dp)
-            )
-
-            IconButton(
-                onClick = {
-                    onRankingClick()
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(48.dp)
-            ) {
-                Icon(
-                    imageVector = LineAwesomeIcons.AwardSolid,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.tertiary,
+            bottomItems.forEachIndexed { index, item ->
+                IconButton(
+                    onClick = {
+                        when (item.first) {
+                            "Home" -> onHomeClick()
+                            "Ranking" -> onRankingClick()
+                            "Settings" -> onSettingsClick()
+                        }
+                        selectedIndex = index
+                    },
                     modifier = Modifier
-                        .size(36.dp)
-                )
-            }
+                        .padding(8.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(
+                            color = if(selectedIndex == index) MaterialTheme.colorScheme.surfaceTint.copy(0.1f) else Color.Transparent,
+                        )
+                        .height(34.dp)
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        imageVector = item.second,
+                        contentDescription = null,
+                        tint = if(selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
+                    )
+                }
 
-            VerticalDivider(
-                modifier = Modifier
-                    .padding(8.dp)
-            )
-
-            IconButton(
-                onClick = {
-                    onSettingsClick()
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(48.dp)
-            ) {
-                Icon(
-                    imageVector = LineAwesomeIcons.CogSolid,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.tertiary
-                )
+                if (item != bottomItems.last()) {
+                    VerticalDivider(
+                        modifier = Modifier
+                            .padding(8.dp)
+                    )
+                }
             }
         }
     }

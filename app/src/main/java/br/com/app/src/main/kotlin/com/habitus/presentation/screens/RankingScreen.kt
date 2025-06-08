@@ -3,12 +3,15 @@ package br.com.app.src.main.kotlin.com.habitus.presentation.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.RankingViewModel
+import br.com.app.src.main.kotlin.com.habitus.sample.listOfCategories
+import compose.icons.LineAwesomeIcons
+import compose.icons.lineawesomeicons.AngleDownSolid
+import compose.icons.lineawesomeicons.AngleLeftSolid
+import compose.icons.lineawesomeicons.AngleRightSolid
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -42,12 +50,8 @@ fun RankingScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-
-        Text("Ranking", color = Color.Black, style = MaterialTheme.typography.headlineMedium)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         RankingTypeSelector(
             selected = uiState.selectedRange,
             onSelect = viewModel::onRangeChange
@@ -78,11 +82,15 @@ fun RankingScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
+                .shadow(2.dp, RoundedCornerShape(16.dp)),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text("Gráfico será implementado aqui")
             }
         }
+
+        Spacer(modifier = Modifier.height(54.dp))
     }
 }
 
@@ -120,7 +128,7 @@ fun RankingTypeSelector(
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (isSelected) Color.White else Color.Transparent,
-                        contentColor = if (isSelected) Color(0xFF3843FF) else Color(0xFF686873)
+                        contentColor = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF686873)
                     ),
                     elevation = ButtonDefaults.buttonElevation(0.dp),
                     contentPadding = PaddingValues(horizontal = 4.dp)
@@ -190,7 +198,13 @@ fun DateNavigator(
                 border = BorderStroke(1.dp, Color(0xFFEAECF0)),
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(0.dp)
-            ) { Text("<") }
+            ) {
+                Icon(
+                    imageVector = LineAwesomeIcons.AngleLeftSolid,
+                    contentDescription = "Antes",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.width(8.dp))
 
@@ -204,7 +218,13 @@ fun DateNavigator(
                 border = BorderStroke(1.dp, Color(0xFFEAECF0)),
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(0.dp)
-            ) { Text(">") }
+            ) {
+                Icon(
+                    imageVector = LineAwesomeIcons.AngleRightSolid,
+                    contentDescription = "Próximo",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
@@ -218,7 +238,6 @@ fun StatsCard(
     completados: Int = 5,
     pulados: Int = 2
 ) {
-    val categorias = listOf("Todos os Hábitos", "Saúde", "Produtividade", "Bem-estar")
     var expanded by remember { mutableStateOf(false) }
 
     Column(
@@ -254,14 +273,21 @@ fun StatsCard(
                     ),
                     border = BorderStroke(1.dp, Color(0xFFEAECF0)),
                 ) {
-                    Text("▼")
+                    var rotateIcon = if (expanded) 180f else 0f
+                    Icon(
+                        imageVector = LineAwesomeIcons.AngleDownSolid,
+                        contentDescription = "Selecionar Categoria",
+                        modifier = Modifier
+                            .size(16.dp)
+                            .rotate(rotateIcon),
+                    )
                 }
 
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    categorias.forEach {
+                    listOfCategories.forEach {
                         DropdownMenuItem(
                             text = { Text(it) },
                             onClick = {
