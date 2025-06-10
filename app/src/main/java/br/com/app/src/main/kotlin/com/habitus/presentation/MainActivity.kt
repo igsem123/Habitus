@@ -49,16 +49,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun FirebaseUser.toUserEntity(): UserEntity {
-    return UserEntity(
-        email = this.email.orEmpty(),
-        password = "", // Nunca armazenar a senha real!
-        uid = this.uid,
-        username = this.displayName ?: this.email.orEmpty().substringBefore("@")
-    )
-}
-
-
 @Composable
 fun Habitus(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
@@ -114,4 +104,13 @@ fun Habitus(modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+fun FirebaseUser.toUserEntity(): UserEntity {
+    return UserEntity(
+        email = email.orEmpty(),
+        password = "", // Nunca armazene senha real!
+        uid = uid,
+        username = displayName ?: email.orEmpty().substringBefore("@")
+    )
 }

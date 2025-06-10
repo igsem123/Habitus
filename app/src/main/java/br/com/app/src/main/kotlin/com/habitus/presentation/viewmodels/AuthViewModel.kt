@@ -27,7 +27,9 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             firebaseAuth.loginWithEmail(email, password).collectLatest { response ->
                 _authState.value = response
-                _user.value = firebaseAuth.auth.currentUser
+                if(response is AuthResponde.Success) {
+                    _user.value = response.user
+                }
             }
         }
     }
@@ -36,11 +38,18 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             firebaseAuth.createAccountWithEmail(email, password).collectLatest { response ->
                 _authState.value = response
+                if(response is AuthResponde.Success) {
+                    _user.value = response.user
+                }
             }
         }
     }
 
     fun resetState() {
         _authState.value = null
+    }
+
+    init {
+        _user.value = firebaseAuth.auth.currentUser
     }
 }

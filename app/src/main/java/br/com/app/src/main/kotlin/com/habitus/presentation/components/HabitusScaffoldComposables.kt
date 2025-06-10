@@ -130,7 +130,7 @@ fun TopAppBarForHomeScreen(
                 .align(Alignment.CenterStart)
                 .padding(start = 16.dp, bottom = 8.dp)
         ) {
-            Text("Olá, ${user.username}!", color = Color.White, fontWeight = FontWeight.Bold)
+            Text("Olá, ${user.username.replaceFirstChar { it.uppercase() }}!", color = Color.White, fontWeight = FontWeight.Bold)
             Text("Vamos criar hábitos!", color = Color.White.copy(alpha = 0.8f))
         }
     }

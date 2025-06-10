@@ -9,25 +9,13 @@ import br.com.app.src.main.kotlin.com.habitus.presentation.screens.HomeScreen
 
 internal const val HOME_ROUTE = "home"
 
-internal fun NavGraphBuilder.homeNavigation(
-    navController: NavHostController,
-    user: UserEntity?
-) {
-    composable(
-        route = HOME_ROUTE,
-    ) {
-        user?.let {
-            HomeScreen(
-                user = it,
-                onNavigateToRegisterHabits = {
-                    navController.navigateToRegisterHabits()
-                }
-            )
-        } ?: run {
-            navController.navigate(INITIAL_FORM_ROUTE) {
-                popUpTo(HOME_ROUTE) { inclusive = true }
+internal fun NavGraphBuilder.homeNavigation(navController: NavHostController) {
+    composable(route = HOME_ROUTE) {
+        HomeScreen(
+            onNavigateToRegisterHabits = {
+                navController.navigateToRegisterHabits()
             }
-        }
+        )
     }
 }
 
