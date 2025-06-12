@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -22,16 +23,24 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
+import br.com.app.src.main.kotlin.com.habitus.presentation.components.BottomAppBar
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.TopAppBarForHomeScreen
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.TopAppBarForOtherScreens
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.HOME_ROUTE
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.INITIAL_FORM_ROUTE
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.RANKING_ROUTE
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.REGISTER_HABITS_ROUTE
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.SETTINGS_ROUTE
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.homeNavigation
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.initialFormNavigation
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToHome
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToRanking
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToRegisterHabits
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToSettings
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.rankingNavigation
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.registerHabitsNavigation
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.AuthViewModel
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.settingsNavigation
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.HabitusTheme
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.AndroidEntryPoint
@@ -85,14 +94,29 @@ fun Habitus(modifier: Modifier = Modifier) {
                     },
                     isBackIconVisible = true
                 )
-                else -> TopAppBarForOtherScreens()
+
+                RANKING_ROUTE -> TopAppBarForOtherScreens(
+                    title = "Ranking",
+                    isBackIconVisible = false
+                )
+
+                SETTINGS_ROUTE -> TopAppBarForOtherScreens(
+                    title = "Configurações",
+                    isBackIconVisible = false
+                )
+
+                else -> TopAppBarForOtherScreens(
+                    isBackIconVisible = false
+                )
             }
-        }
+        },
+        containerColor = Color.Transparent
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
+            contentAlignment = Alignment.BottomCenter
         ) {
             NavHost(
                 navController = navController,
@@ -101,6 +125,22 @@ fun Habitus(modifier: Modifier = Modifier) {
                 initialFormNavigation(navController)
                 homeNavigation(navController)
                 registerHabitsNavigation(navController)
+                rankingNavigation(navController)
+                settingsNavigation(navController)
+            }
+
+            if (navRoute != INITIAL_FORM_ROUTE) {
+                BottomAppBar(
+                    onHomeClick = {
+                        navController.navigateToHome()
+                    },
+                    onRankingClick = {
+                        navController.navigateToRanking()
+                    },
+                    onSettingsClick = {
+                        navController.navigateToSettings()
+                    }
+                )
             }
         }
     }

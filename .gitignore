@@ -14,3 +14,9 @@
 .cxx
 local.properties
 vcs.xml
+
+# Google Services
+google-services.json
+
+# Android Studio 3.5+ captures folder
+misc.xml

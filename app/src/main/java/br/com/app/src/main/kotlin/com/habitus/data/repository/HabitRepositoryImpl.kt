@@ -2,6 +2,7 @@ package br.com.app.src.main.kotlin.com.habitus.data.repository
 
 import br.com.app.src.main.kotlin.com.habitus.data.database.HabitusDatabase
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
+import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitLogEntity
 import javax.inject.Inject
 
 class HabitRepositoryImpl @Inject constructor(
@@ -33,6 +34,19 @@ class HabitRepositoryImpl @Inject constructor(
             habit.pontuation,
             habit.days
         )
+    }
+
+    override suspend fun insertLog(
+        log: HabitLogEntity
+    ) {
+        db.habitDao().insertHabitLog(log)
+    }
+
+    override suspend fun filterHabitsByPeriod(
+        inicioPeriodo: Long,
+        fimPeriodo: Long
+    ): List<HabitLogEntity> {
+        return db.habitDao().filterHabitsByPeriod(inicioPeriodo, fimPeriodo)
     }
 
     override suspend fun getHabitsCount(): Int {
