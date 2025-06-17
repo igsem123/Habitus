@@ -1,5 +1,6 @@
 package br.com.app.src.main.kotlin.com.habitus.presentation.screens
 
+import android.widget.Toast
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.AuthViewModel
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -9,6 +10,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.setValue
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -52,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -194,7 +197,11 @@ fun SplashContent() {
  */
 
 @Composable
-fun CadastroForm(onNavigateToHome: () -> Unit, onGoToLogin: () -> Unit, viewModel: AuthViewModel = hiltViewModel()) {
+fun CadastroForm(
+    onNavigateToHome: () -> Unit,
+    onGoToLogin: () -> Unit,
+    viewModel: AuthViewModel = hiltViewModel()
+) {
     //Campos do formulário de cadastro
     var nome by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -384,10 +391,15 @@ fun CadastroForm(onNavigateToHome: () -> Unit, onGoToLogin: () -> Unit, viewMode
  */
 
 @Composable
-fun LoginForm(onNavigateToHome: () -> Unit, onGoToCadastro: () -> Unit, viewModel: AuthViewModel = hiltViewModel() ) {
+fun LoginForm(
+    onNavigateToHome: () -> Unit,
+    onGoToCadastro: () -> Unit,
+    viewModel: AuthViewModel = hiltViewModel()
+) {
     //Campos do formulário de login
-    var email by remember { mutableStateOf("") }
-    var senha by remember { mutableStateOf("") }
+    val email by viewModel.email.collectAsState()
+    val senha by viewModel.password.collectAsState()
+    val context = LocalContext.current
 
     val authState by viewModel.authState.collectAsState()
 
@@ -429,7 +441,9 @@ fun LoginForm(onNavigateToHome: () -> Unit, onGoToCadastro: () -> Unit, viewMode
             //Campo para e-mail
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    viewModel.onEmailChange(it)
+                },
                 label = { Text("E-mail") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -446,13 +460,21 @@ fun LoginForm(onNavigateToHome: () -> Unit, onGoToCadastro: () -> Unit, viewMode
                             .padding(start = 8.dp)
                             .size(24.dp)
                     )
+                },
+                isError = !viewModel.validateEmail() && email.isNotEmpty(),
+                supportingText = {
+                    if (!viewModel.validateEmail() && email.isNotEmpty()) {
+                        Text("E-mail inválido", color = Color.Red)
+                    }
                 }
             )
 
             //Campo para senha
             OutlinedTextField(
                 value = senha,
-                onValueChange = { senha = it },
+                onValueChange = {
+                    viewModel.onPasswordChange(it)
+                },
                 label = { Text("Senha") },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(),
@@ -470,13 +492,25 @@ fun LoginForm(onNavigateToHome: () -> Unit, onGoToCadastro: () -> Unit, viewMode
                             .padding(start = 8.dp)
                             .size(24.dp)
                     )
+                },
+                isError = !viewModel.validatePassword() && senha.isNotEmpty(),
+                supportingText = {
+                    if (!viewModel.validatePassword() && senha.isNotEmpty()) {
+                        Text("Senha inválida", color = Color.Red)
+                    }
                 }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { viewModel.login(email, senha) },
+                onClick = {
+                    if (email.isNotEmpty() && senha.isNotEmpty() && viewModel.validateForm()) {
+                        viewModel.login(email, senha)
+                    } else {
+                        Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),

@@ -162,7 +162,7 @@ fun CardHabits(
                                 fontSize = 10.sp,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                 modifier = Modifier
-                                    .padding(horizontal = 4.dp, vertical = 4.dp)
+                                    .padding(horizontal = 2.dp, vertical = 4.dp)
                                     .background(
                                         color = if (isChecked) MaterialTheme.colorScheme.background.copy(0.6f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                                         shape = RoundedCornerShape(8.dp)
