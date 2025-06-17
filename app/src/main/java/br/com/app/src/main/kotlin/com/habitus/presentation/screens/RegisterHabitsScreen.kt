@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -345,7 +347,10 @@ fun RegisterHabitsScreen(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         },
-                        onClick = { viewModel.onCategoryChanged(option) },
+                        onClick = {
+                            viewModel.onCategoryChanged(option)
+                            viewModel.onToggleCategoryDropdown(false)
+                        },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         colors = MenuDefaults.itemColors(
                             textColor = MaterialTheme.colorScheme.tertiary,
@@ -389,6 +394,8 @@ fun RegisterHabitsScreen(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(54.dp)) // Espaço extra no final
     }
 }
 
@@ -399,8 +406,8 @@ private fun HabitFormTextField(
     onValueChange: (String) -> Unit = {},
     label: String = "",
     placeholder: String = "",
-    mainColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.tertiary,
-    secondaryColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primaryContainer,
+    mainColor: Color = MaterialTheme.colorScheme.tertiary,
+    secondaryColor: Color = MaterialTheme.colorScheme.primaryContainer,
 ) {
     OutlinedTextField(
         value = value,
@@ -435,6 +442,7 @@ private fun FrequencyButton(
     } else {
         MaterialTheme.colorScheme.surfaceDim
     }
+
     TextButton(
         onClick = { onSelectFrequency(frequency) },
         modifier = Modifier
