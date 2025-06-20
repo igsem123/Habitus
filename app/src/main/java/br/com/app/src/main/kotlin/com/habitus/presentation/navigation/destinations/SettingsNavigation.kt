@@ -6,6 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import br.com.app.src.main.kotlin.com.habitus.presentation.screens.SettingsScreen
 
+
+
 internal const val SETTINGS_ROUTE = "settings"
 
 internal fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
