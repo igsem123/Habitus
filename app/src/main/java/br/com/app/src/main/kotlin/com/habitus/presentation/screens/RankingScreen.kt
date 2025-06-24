@@ -347,15 +347,15 @@ fun isCurrentWeek(date: LocalDate): Boolean {
     return date in thisMonday..thisSunday
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewRankingScreen() {
-    RankingScreen(
-        selectedRange = RankingRange.SEMANAL,
-        selectedDate = LocalDate.now(),
-        selectedHabit = "Exercício",
-        onRangeChange = {},
-        onDateChange = {},
-        onHabitChange = {}
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewRankingScreen() {
+//    RankingScreen(
+//        selectedRange = RankingRange.SEMANAL,
+//        selectedDate = LocalDate.now(),
+//        selectedHabit = "Exercício",
+//        onRangeChange = {},
+//        onDateChange = {},
+//        onHabitChange = {}
+//    )
+//}
