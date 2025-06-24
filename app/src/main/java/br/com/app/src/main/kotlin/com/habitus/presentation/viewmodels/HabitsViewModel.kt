@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.app.src.main.kotlin.com.habitus.data.entity.Days
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
+import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitLogEntity
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitLogRepository
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
 import br.com.app.src.main.kotlin.com.habitus.presentation.states.HomeUiState
@@ -227,19 +228,43 @@ class HabitsViewModel @Inject constructor(
      * @param isCompleted Indica se o hábito foi concluído (true) ou não (false).
      * @param entity O objeto HabitEntity que representa o hábito a ser atualizado.
      */
-    fun checkHabit(isCompleted: Boolean, entity: HabitEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val updatedHabit = entity.copy(isCompleted = isCompleted)
+//    fun checkHabit(isCompleted: Boolean, entity: HabitEntity) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                val updatedHabit = entity.copy(isCompleted = isCompleted)
+//
+//                // Atualiza o hábito no repositório
+//                repository.updateHabit(updatedHabit)
+//                getAllHabits()
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }
 
-                // Atualiza o hábito no repositório
-                repository.updateHabit(updatedHabit)
-                getAllHabits()
-            } catch (e: Exception) {
-                e.printStackTrace()
+    //COMENTEI A FUCNAO "checkHabit"  PQ ELA MARCA COMO "FEITO" O HABITO TODINHO E NAO SÓ DO HABITO DE HOJE
+    // FUNCAO QUE MARCA COMO FEITO O HABITO DE HOJE
+    fun checkHabitForToday(habitId: Long, isCompleted: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val today = getTodayDateMillis()
+            val log = habitLogRepository.getLogForHabitAndDate(habitId, today)
+
+            if (log != null) {
+                val updatedLog = log.copy(isCompleted = isCompleted)
+                habitLogRepository.insertLog(updatedLog) // substitui (porque é onConflict = REPLACE)
+            } else {
+                // fallback: cria um log se não existir (opcional)
+                habitLogRepository.insertLog(
+                    HabitLogEntity(
+                        habitId = habitId,
+                        date = today,
+                        isCompleted = isCompleted
+                    )
+                )
             }
         }
     }
+
 
     /**
      * Filtra os hábitos com base no dia selecionado.
