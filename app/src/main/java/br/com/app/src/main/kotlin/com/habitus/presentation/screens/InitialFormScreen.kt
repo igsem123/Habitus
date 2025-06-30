@@ -90,11 +90,11 @@ import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthResponde
 fun InitialFormScreen(modifier: Modifier = Modifier, onNavigateToHome: () -> Unit) {
     var currentScreen by remember { mutableStateOf("splash") }
 
-    //Detecta quando o usuário desliza para cima para mudar a tela splash para cadastro
+    //Detecta quando o usuário desliza para cima para mudar a tela splash para login
     val swipeGesture = Modifier.pointerInput(Unit) {
         detectVerticalDragGestures { _, dragAmount ->
             if (dragAmount < -50) {
-                currentScreen = "cadastro"
+                currentScreen = "login"
             }
         }
     }
