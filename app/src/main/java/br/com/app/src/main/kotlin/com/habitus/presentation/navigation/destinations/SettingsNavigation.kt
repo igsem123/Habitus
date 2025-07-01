@@ -12,7 +12,7 @@ internal const val SETTINGS_ROUTE = "settings"
 
 internal fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
     composable(route = SETTINGS_ROUTE) {
-        SettingsScreen()
+        SettingsScreen(navController = navController)
     }
 }
 
