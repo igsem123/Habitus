@@ -107,8 +107,6 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(48.dp)) }
-
             item { SectionTitle("Conta") }
 
             item {
