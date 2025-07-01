@@ -118,8 +118,8 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             }
 
             item {
-                SettingsItem("Logout") {
-                    Toast.makeText(context, "Logout", Toast.LENGTH_SHORT).show()
+                SettingsItem("Sair da conta") {
+                    Toast.makeText(context, "Sair da conta", Toast.LENGTH_SHORT).show()
                 }
             }
 
