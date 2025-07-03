@@ -1,36 +1,29 @@
 package br.com.app.src.main.kotlin.com.habitus.presentation.screens
 
-
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import android.widget.Toast
-import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.navigation.NavController
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.ktx.userProfileChangeRequest
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToInitialForm
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
-
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.userProfileChangeRequest
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -50,7 +43,6 @@ fun SettingsScreen(navController: NavController) {
     var name by remember { mutableStateOf(user?.displayName ?: "") }
     var email by remember { mutableStateOf(user?.email ?: "") }
 
-
     if (user == null) {
         Toast.makeText(context, "Usuário não autenticado", Toast.LENGTH_SHORT).show()
         return
@@ -60,7 +52,6 @@ fun SettingsScreen(navController: NavController) {
         EditProfileDialog(
             onDismiss = { showEditDialog = false },
             onSave = { newName, newEmail, password ->
-                // Atualiza nome
                 if (newName.isNotBlank()) {
                     val profileUpdate = userProfileChangeRequest {
                         setDisplayName(newName)
@@ -72,7 +63,6 @@ fun SettingsScreen(navController: NavController) {
                         }
                 }
 
-                // Solicita verificação de e-mail para alteração
                 if (newEmail.isNotBlank() && newEmail != email) {
                     if (password.isBlank()) {
                         Toast.makeText(context, "Informe a senha para alterar o e-mail", Toast.LENGTH_LONG).show()
@@ -82,23 +72,15 @@ fun SettingsScreen(navController: NavController) {
                             .addOnSuccessListener {
                                 user.verifyBeforeUpdateEmail(newEmail)
                                     .addOnSuccessListener {
-                                        Toast.makeText(
-                                            context,
-                                            "Verifique o novo email. Um link foi enviado para confirmação.",
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                                        Toast.makeText(context, "Verifique o novo email. Um link foi enviado.", Toast.LENGTH_LONG).show()
                                     }
                                     .addOnFailureListener { ex ->
                                         Log.e("SettingsScreen", "Erro ao solicitar verificação", ex)
-                                        Toast.makeText(
-                                            context,
-                                            "Erro ao enviar e-mail de verificação: ${ex.message}",
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                                        Toast.makeText(context, "Erro: ${ex.message}", Toast.LENGTH_LONG).show()
                                     }
                             }
                             .addOnFailureListener {
-                                Toast.makeText(context, "Senha incorreta. Não foi possível reautenticar.", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Senha incorreta.", Toast.LENGTH_LONG).show()
                             }
                     }
                 }
@@ -183,10 +165,28 @@ fun SettingsScreen(navController: NavController) {
                         } else {
                             Toast.makeText(
                                 context,
-                                "Notificações desativadas no app. Vá em Configurações do sistema para reativar.",
+                                "Notificações desativadas. Ative nas configurações do sistema.",
                                 Toast.LENGTH_LONG
                             ).show()
                         }
+                    }
+                )
+            }
+        }
+
+        item {
+            SectionTitle("Dados")
+        }
+
+        item {
+            SettingsItem("Exportar relatório de hábitos") {
+                viewModel.exportReport(
+                    context = context,
+                    onSuccess = {
+                        Toast.makeText(context, "Relatório exportado com sucesso!", Toast.LENGTH_SHORT).show()
+                    },
+                    onError = { error ->
+                        Toast.makeText(context, "Erro: $error", Toast.LENGTH_SHORT).show()
                     }
                 )
             }
@@ -201,14 +201,11 @@ fun SettingsScreen(navController: NavController) {
             SectionTitle("Conta")
             SettingsItem("Sair da Conta") {
                 auth.signOut()
-                navController.navigate("initial_form") {
-                    popUpTo(0) { inclusive = true }
-                }
+                navController.navigateToInitialForm()
             }
         }
     }
 }
-
 
 @Composable
 fun SectionTitle(text: String) {
@@ -223,7 +220,6 @@ fun SectionTitle(text: String) {
 }
 
 @Composable
-//Editar Perfil: edição de nome e e-mail
 fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String, String) -> Unit) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -234,47 +230,19 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String, String) ->
         title = { Text("Editar Perfil") },
         text = {
             Column {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nome") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nome") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("E-mail") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("E-mail") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Senha (para alterar e-mail)") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation()
-                )
+                OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Senha (para alterar e-mail)") }, singleLine = true, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation())
             }
         },
-        confirmButton = {
-            TextButton(onClick = { onSave(name, email, password) }) {
-                Text("Salvar")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
-            }
-        }
+        confirmButton = { TextButton(onClick = { onSave(name, email, password) }) { Text("Salvar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
     )
 }
 
 @Composable
-//Alterar senha e confirmar alteração
 fun ChangePasswordDialog(onDismiss: () -> Unit, onChange: (String, String) -> Unit) {
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -284,35 +252,13 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onChange: (String, String) -> Un
         title = { Text("Alterar Senha") },
         text = {
             Column {
-                OutlinedTextField(
-                    value = newPassword,
-                    onValueChange = { newPassword = it },
-                    label = { Text("Nova senha") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation()
-                )
+                OutlinedTextField(value = newPassword, onValueChange = { newPassword = it }, label = { Text("Nova senha") }, singleLine = true, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation())
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = { Text("Confirmar senha") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation()
-                )
+                OutlinedTextField(value = confirmPassword, onValueChange = { confirmPassword = it }, label = { Text("Confirmar senha") }, singleLine = true, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation())
             }
         },
-        confirmButton = {
-            TextButton(onClick = { onChange(newPassword, confirmPassword) }) {
-                Text("Alterar")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
-            }
-        }
+        confirmButton = { TextButton(onClick = { onChange(newPassword, confirmPassword) }) { Text("Alterar") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
     )
 }
 
@@ -324,18 +270,11 @@ fun SettingsItem(text: String, onClick: () -> Unit) {
             .padding(vertical = 12.dp)
             .clickable { onClick() }
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Text(text = text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.fillMaxWidth())
     }
 }
 
-////Remove o token de autenticação salvo localmente.
-////A associação do token com o usuário deve ser tratada no backend.
 fun logout(context: Context) {
     val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
-    prefs.edit().remove("" +
-            "user_token").apply()
+    prefs.edit().remove("user_token").apply()
 }
