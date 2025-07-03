@@ -113,5 +113,7 @@ dependencies {
     implementation("androidx.credentials:credentials:$credentialManagerVersion")
     implementation("androidx.credentials:credentials-play-services-auth:$credentialManagerVersion")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
-    
+
+    // Ranking Graphics
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

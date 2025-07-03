@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import br.com.app.src.main.kotlin.com.habitus.data.dao.HabitDao
+import br.com.app.src.main.kotlin.com.habitus.data.dao.HabitLogDao
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitLogEntity
 
@@ -15,4 +16,5 @@ import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitLogEntity
 @TypeConverters(Converters::class)
 abstract class HabitusDatabase() : RoomDatabase() {
     abstract fun habitDao(): HabitDao
+    abstract fun habitLogDao(): HabitLogDao
 }
