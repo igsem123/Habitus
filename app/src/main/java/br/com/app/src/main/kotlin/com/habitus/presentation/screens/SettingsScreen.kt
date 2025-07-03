@@ -21,12 +21,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToInitialForm
+import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+
+
 
 
 @Composable
 fun SettingsScreen(navController: NavController, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-
+    val viewModel: SettingsViewModel = hiltViewModel()
     var notificationsEnabled by remember { mutableStateOf(false) }
     var isDarkTheme by remember { mutableStateOf(false) }
 
@@ -118,8 +122,17 @@ fun SettingsScreen(navController: NavController, modifier: Modifier = Modifier) 
 
             item {
                 SettingsItem("Exportar relatório de hábitos") {
-                    Toast.makeText(context, "Exportar relatório", Toast.LENGTH_SHORT).show()
+                    viewModel.exportReport(
+                        context = context,
+                        onSuccess = {
+                            Toast.makeText(context, "Relatório exportado com sucesso!", Toast.LENGTH_SHORT).show()
+                        },
+                        onError = { error ->
+                            Toast.makeText(context, "Erro: $error", Toast.LENGTH_SHORT).show()
+                        }
+                    )
                 }
+
             }
 
             item { SectionTitle("Conta") }
