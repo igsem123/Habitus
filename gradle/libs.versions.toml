@@ -23,6 +23,7 @@ lineAwesome = "1.1.1"
 navigationCompose = "2.9.0"
 roomRuntime = "2.7.1"
 uiTextGoogleFonts = "1.8.2"
+appcompat = "1.7.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,6 +59,7 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.4.0-alpha15" }
 line-awesome = { module = "br.com.devsrsouza.compose.icons:line-awesome", version.ref = "lineAwesome" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

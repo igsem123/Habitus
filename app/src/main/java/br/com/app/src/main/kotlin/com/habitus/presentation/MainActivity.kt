@@ -2,6 +2,7 @@
 
 package br.com.app.src.main.kotlin.com.habitus.presentation
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -51,7 +52,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            HabitusTheme {
+            val prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
+            val darkMode = prefs.getBoolean("dark_theme", false)
+
+            HabitusTheme(darkTheme = darkMode) {
                 Habitus()
             }
         }

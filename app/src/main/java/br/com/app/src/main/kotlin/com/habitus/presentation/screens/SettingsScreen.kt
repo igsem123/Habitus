@@ -2,6 +2,8 @@ package br.com.app.src.main.kotlin.com.habitus.presentation.screens
 
 
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,158 +17,191 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import android.widget.Toast
+import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.NavController
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToInitialForm
-
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.ktx.userProfileChangeRequest
 
 @Composable
-fun SettingsScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun SettingsScreen(navController: NavController) {
     val context = LocalContext.current
+    val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+    val auth = FirebaseAuth.getInstance()
+    val user = auth.currentUser
 
-    var notificationsEnabled by remember { mutableStateOf(false) }
-    var isDarkTheme by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
+    var showPasswordDialog by remember { mutableStateOf(false) }
 
-    var showEditProfileDialog by remember { mutableStateOf(false) }
-    var showChangePasswordDialog by remember { mutableStateOf(false) }
+    var darkTheme by remember { mutableStateOf(prefs.getBoolean("dark_theme", false)) }
+    var allowNotifications by remember { mutableStateOf(prefs.getBoolean("allow_notifications", true)) }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        LazyColumn(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+    var name by remember { mutableStateOf(user?.displayName ?: "") }
+    var email by remember { mutableStateOf(user?.email ?: "") }
 
-            //Perfil
-            item { SectionTitle("Perfil") }
-
-            item {
-                SettingsItem("Editar perfil") {
-                    showEditProfileDialog = true
-                }
-            }
-
-            //Aparência
-            item { SectionTitle("Aparência") }
-
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = if (isDarkTheme) "Tema: Escuro" else "Tema: Claro",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Switch(
-                        checked = isDarkTheme,
-                        onCheckedChange = {
-                            isDarkTheme = it
-                            Toast.makeText(
-                                context,
-                                if (it) "Tema Escuro ativado" else "Tema Claro ativado",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                        }
-                    )
-                }
-            }
-
-            //Notificações
-            item { SectionTitle("Notificações") }
-
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Permitir notificações",
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Switch(
-                        checked = notificationsEnabled,
-                        onCheckedChange = {
-                            notificationsEnabled = it
-                            Toast.makeText(
-                                context,
-                                if (it) "Notificações ativadas" else "Notificações desativadas",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    )
-                }
-            }
-
-            //Exportar relatório
-            item { SectionTitle("Dados") }
-
-            item {
-                SettingsItem("Exportar relatório de hábitos") {
-                    Toast.makeText(context, "Exportar relatório", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            item { SectionTitle("Conta") }
-
-            //Alterar senha e sair da conta
-            item {
-                SettingsItem("Alterar senha")  {
-                    showChangePasswordDialog = true
-                }
-            }
-
-            item {
-                SettingsItem("Sair da conta") {
-                    logout(context)
-                    Toast.makeText(context, "Você foi deslogado", Toast.LENGTH_SHORT).show()
-                    navController.navigateToInitialForm()  //Navega para a tela inicial
-                }
-            }
-
-            item { Spacer(modifier = Modifier.height(32.dp)) }
-        }
+    if (user == null) {
+        Toast.makeText(context, "Usuário não autenticado", Toast.LENGTH_SHORT).show()
+        return
     }
 
-if (showEditProfileDialog) {
-    EditProfileDialog(
-        onDismiss = { showEditProfileDialog = false },
-        onSave = { name, email ->
-            Toast.makeText(context, "Nome salvo: $name\nEmail salvo: $email", Toast.LENGTH_SHORT).show()
-            showEditProfileDialog = false
-        }
-    )
-}
+    if (showEditDialog) {
+        EditProfileDialog(
+            onDismiss = { showEditDialog = false },
+            onSave = { newName, newEmail, password ->
+                // Atualiza nome
+                if (newName.isNotBlank()) {
+                    val profileUpdate = userProfileChangeRequest {
+                        setDisplayName(newName)
+                    }
+                    user.updateProfile(profileUpdate)
+                        .addOnSuccessListener { name = newName }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Erro ao atualizar nome", Toast.LENGTH_SHORT).show()
+                        }
+                }
 
-if (showChangePasswordDialog) {
-    ChangePasswordDialog(
-        onDismiss = { showChangePasswordDialog = false },
-        onChange = { newPassword, confirmPassword ->
-            if (newPassword == confirmPassword && newPassword.isNotBlank()) {
-                Toast.makeText(context, "Senha alterada com sucesso!", Toast.LENGTH_SHORT).show()
-                showChangePasswordDialog = false
-            } else {
-                Toast.makeText(context, "As senhas não coincidem ou estão vazias.", Toast.LENGTH_SHORT).show()
+                // Solicita verificação de e-mail para alteração
+                if (newEmail.isNotBlank() && newEmail != email) {
+                    if (password.isBlank()) {
+                        Toast.makeText(context, "Informe a senha para alterar o e-mail", Toast.LENGTH_LONG).show()
+                    } else {
+                        val credential = EmailAuthProvider.getCredential(user.email!!, password)
+                        user.reauthenticate(credential)
+                            .addOnSuccessListener {
+                                user.verifyBeforeUpdateEmail(newEmail)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(
+                                            context,
+                                            "Verifique o novo email. Um link foi enviado para confirmação.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                    .addOnFailureListener { ex ->
+                                        Log.e("SettingsScreen", "Erro ao solicitar verificação", ex)
+                                        Toast.makeText(
+                                            context,
+                                            "Erro ao enviar e-mail de verificação: ${ex.message}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(context, "Senha incorreta. Não foi possível reautenticar.", Toast.LENGTH_LONG).show()
+                            }
+                    }
+                }
+
+                if (newName.isBlank() && (newEmail.isBlank() || newEmail == email)) {
+                    Toast.makeText(context, "Nenhuma alteração detectada", Toast.LENGTH_SHORT).show()
+                }
+
+                showEditDialog = false
+            }
+        )
+    }
+
+    if (showPasswordDialog) {
+        ChangePasswordDialog(
+            onDismiss = { showPasswordDialog = false },
+            onChange = { newPass, confirmPass ->
+                if (newPass == confirmPass) {
+                    user?.updatePassword(newPass)
+                        ?.addOnSuccessListener {
+                            Toast.makeText(context, "Senha alterada", Toast.LENGTH_SHORT).show()
+                        }
+                        ?.addOnFailureListener {
+                            Toast.makeText(context, "Erro ao alterar senha", Toast.LENGTH_SHORT).show()
+                        }
+                    showPasswordDialog = false
+                } else {
+                    Toast.makeText(context, "Senhas não coincidem", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            SectionTitle("Perfil")
+            SettingsItem("Editar Perfil") { showEditDialog = true }
+        }
+
+        item {
+            SectionTitle("Tema")
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Tema escuro", modifier = Modifier.weight(1f))
+                Switch(
+                    checked = darkTheme,
+                    onCheckedChange = {
+                        darkTheme = it
+                        prefs.edit().putBoolean("dark_theme", it).apply()
+                        AppCompatDelegate.setDefaultNightMode(
+                            if (it) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+                        )
+                    }
+                )
             }
         }
-    )
+
+        item {
+            SectionTitle("Notificações")
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Permitir notificações", modifier = Modifier.weight(1f))
+                Switch(
+                    checked = allowNotifications,
+                    onCheckedChange = {
+                        allowNotifications = it
+                        prefs.edit().putBoolean("allow_notifications", it).apply()
+                        if (it) {
+                            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                            }
+                            context.startActivity(intent)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Notificações desativadas no app. Vá em Configurações do sistema para reativar.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                )
+            }
+        }
+
+        item {
+            SectionTitle("Segurança")
+            SettingsItem("Alterar Senha") { showPasswordDialog = true }
+        }
+
+        item {
+            SectionTitle("Conta")
+            SettingsItem("Sair da Conta") {
+                auth.signOut()
+                navController.navigate("initial_form") {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
+    }
 }
-}
+
 
 @Composable
 fun SectionTitle(text: String) {
@@ -175,17 +210,17 @@ fun SectionTitle(text: String) {
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
         modifier = Modifier
-            .padding(vertical = 12.dp)
-            .fillMaxWidth(),
-        maxLines = 1
+            .padding(top = 16.dp)
+            .fillMaxWidth()
     )
 }
 
 @Composable
 //Editar Perfil: edição de nome e e-mail
-fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
+fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String, String) -> Unit) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -207,10 +242,19 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Senha (para alterar e-mail)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation()
+                )
             }
         },
         confirmButton = {
-            TextButton(onClick = { onSave(name, email) }) {
+            TextButton(onClick = { onSave(name, email, password) }) {
                 Text("Salvar")
             }
         },
