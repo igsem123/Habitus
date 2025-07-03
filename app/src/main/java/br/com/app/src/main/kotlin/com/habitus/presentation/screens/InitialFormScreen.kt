@@ -46,14 +46,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -71,7 +67,7 @@ import compose.icons.lineawesomeicons.LockSolid
 import compose.icons.lineawesomeicons.User
 import compose.icons.lineawesomeicons.UserLockSolid
 import androidx.hilt.navigation.compose.hiltViewModel
-import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthResponde
+import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthResponse
 
 /**
  * Tela inicial do app com navegação entre splash, cadastro e login por swipe vertical.
@@ -116,12 +112,10 @@ fun InitialFormScreen(modifier: Modifier = Modifier, onNavigateToHome: () -> Uni
             when (screen) {
                 "splash" -> SplashContent()
                 "cadastro" -> CadastroForm(
-                    onNavigateToHome = onNavigateToHome,
                     onGoToLogin = { currentScreen = "login" }
                 )
 
                 "login" -> LoginForm(
-                    onNavigateToHome = onNavigateToHome,
                     onGoToCadastro = { currentScreen = "cadastro" }
                 )
             }
@@ -192,13 +186,11 @@ fun SplashContent() {
  * Exibe o formulário para o usuário preencher nome, e-mail, senha e confirmação de senha.
  * Ao concluir, pode seguir para a tela principal ou ir para a tela de login.
  *
- * @param onNavigateToHome Chamada quando o usuário finaliza o cadastro com sucesso.
  * @param onGoToLogin Chamada quando o usuário escolhe ir para a tela de login.
  */
 
 @Composable
 fun CadastroForm(
-    onNavigateToHome: () -> Unit,
     onGoToLogin: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
@@ -210,9 +202,8 @@ fun CadastroForm(
 
     val authState by viewModel.authState.collectAsState()
 
-    if (authState is AuthResponde.Success) {
+    if (authState is AuthResponse.Success) {
         viewModel.resetState()
-        onNavigateToHome()
     }
 
     Column(
@@ -355,9 +346,9 @@ fun CadastroForm(
             }
 
             // Mostrar erro se houver
-            if (authState is AuthResponde.Error) {
+            if (authState is AuthResponse.Error) {
                 Text(
-                    text = (authState as AuthResponde.Error).message,
+                    text = (authState as AuthResponse.Error).message,
                     color = Color.Red,
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -386,13 +377,11 @@ fun CadastroForm(
  * Permite que o usuário entre com e-mail e senha. Também pode acessar a tela de cadastro
  * caso ainda não tenha uma conta.
  *
- * @param onNavigateToHome Chamada quando o login é feito com sucesso.
  * @param onGoToCadastro Chamada quando o usuário escolhe ir para a tela de cadastro.
  */
 
 @Composable
 fun LoginForm(
-    onNavigateToHome: () -> Unit,
     onGoToCadastro: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
@@ -403,9 +392,8 @@ fun LoginForm(
 
     val authState by viewModel.authState.collectAsState()
 
-    if (authState is AuthResponde.Success) {
+    if (authState is AuthResponse.Success) {
         viewModel.resetState()
-        onNavigateToHome()
     }
 
     Column(
@@ -521,9 +509,9 @@ fun LoginForm(
             }
 
             // Mostrar erro se houver
-            if (authState is AuthResponde.Error) {
+            if (authState is AuthResponse.Error) {
                 Text(
-                    text = (authState as AuthResponde.Error).message,
+                    text = (authState as AuthResponse.Error).message,
                     color = Color.Red,
                     modifier = Modifier.padding(top = 8.dp)
                 )

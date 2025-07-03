@@ -46,7 +46,7 @@ fun HomeScreen(
     viewModel: HabitsViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel
 ) {
-    val uiState by viewModel.homeUiState.collectAsState()
+    val habitsForDay by viewModel.habitsForSelectedDay.collectAsState()
     val completed by viewModel.completedTasksCount.collectAsState()
     val total by viewModel.totalTasksCount.collectAsState()
     val darkTheme by settingsViewModel.darkTheme.collectAsStateWithLifecycle()
@@ -66,7 +66,7 @@ fun HomeScreen(
                 onSelectedDay = { selectedDate ->
                     // Atualiza o estado do ViewModel com a data selecionada
                     viewModel.viewModelScope.launch {
-                        viewModel.filterHabitsByDay(selectedDate)
+                        viewModel.onDateSelected(selectedDate)
                     }
                 }
             )
@@ -150,7 +150,7 @@ fun HomeScreen(
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                uiState?.habits?.forEach { habit ->
+                habitsForDay.forEach { habit ->
                     CardHabits(
                         habit = habit,
                         //comentei pq a isso atualiza todos os habitos e nao só o habito de hoje

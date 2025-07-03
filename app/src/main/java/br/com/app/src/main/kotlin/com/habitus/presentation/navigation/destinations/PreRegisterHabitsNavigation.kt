@@ -20,7 +20,7 @@ internal fun NavGraphBuilder.preRegisterHabitsNavigation(
             },
             user = user,
             onHabitRegistered = {
-                navController.navigateToHome()
+                navController.popBackStack()
             }
         )
     }

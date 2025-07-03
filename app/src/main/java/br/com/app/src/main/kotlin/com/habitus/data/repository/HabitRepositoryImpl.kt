@@ -12,8 +12,8 @@ class HabitRepositoryImpl @Inject constructor(
         db.habitDao().insertHabit(habit)
     }
 
-    override suspend fun getAllHabits(): List<HabitEntity> {
-        return db.habitDao().getAllHabits()
+    override suspend fun getAllHabits(userId: String): List<HabitEntity> {
+        return db.habitDao().getAllHabits(userId)
     }
 
     override suspend fun getCompletedHabits(): Int {

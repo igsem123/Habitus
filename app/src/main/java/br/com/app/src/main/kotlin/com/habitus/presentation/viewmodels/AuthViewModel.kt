@@ -2,8 +2,10 @@ package br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthResponde
-import br.com.app.src.main.kotlin.com.habitus.data.remote.FirebaseAuth
+import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthResponse
+import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthRepository
+import br.com.app.src.main.kotlin.com.habitus.data.repository.UserRepository
+import br.com.app.src.main.kotlin.com.habitus.presentation.toUserEntity
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,11 +17,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val firebaseAuth: FirebaseAuth
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _authState = MutableStateFlow<AuthResponde?>(null)
-    val authState: StateFlow<AuthResponde?> = _authState
+    private val _authState = MutableStateFlow<AuthResponse?>(null)
+    val authState: StateFlow<AuthResponse?> = _authState
 
     private val _user = MutableStateFlow<FirebaseUser?>(null)
     val user: StateFlow<FirebaseUser?> = _user
@@ -29,6 +32,13 @@ class AuthViewModel @Inject constructor(
 
     private val _password = MutableStateFlow<String>("")
     val password = _password.asStateFlow()
+
+    init {
+        // Ouve as mudanças de autenticação do Firebase
+        authRepository.addAuthStateListener { firebaseUser ->
+            _user.value = firebaseUser
+        }
+    }
 
     fun onEmailChange(email: String) {
         _email.value = email
@@ -53,10 +63,12 @@ class AuthViewModel @Inject constructor(
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
-            firebaseAuth.loginWithEmail(email, password).collectLatest { response ->
+            authRepository.loginWithEmail(email, password).collectLatest { response ->
                 _authState.value = response
-                if(response is AuthResponde.Success) {
+                if(response is AuthResponse.Success) {
                     _user.value = response.user
+                    // Após o login, insere o usuário no repositório
+                    userRepository.insertUser(user.value!!.toUserEntity())
                 }
             }
         }
@@ -64,9 +76,9 @@ class AuthViewModel @Inject constructor(
 
     fun register(email: String, password: String) {
         viewModelScope.launch {
-            firebaseAuth.createAccountWithEmail(email, password).collectLatest { response ->
+            authRepository.createAccountWithEmail(email, password).collectLatest { response ->
                 _authState.value = response
-                if(response is AuthResponde.Success) {
+                if(response is AuthResponse.Success) {
                     _user.value = response.user
                 }
             }
@@ -78,6 +90,6 @@ class AuthViewModel @Inject constructor(
     }
 
     init {
-        _user.value = firebaseAuth.auth.currentUser
+        _user.value = authRepository.auth.currentUser
     }
 }

@@ -9,10 +9,12 @@ import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsVi
 internal const val HOME_ROUTE = "home"
 
 internal fun NavGraphBuilder.homeNavigation(
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
 ) {
     composable(route = HOME_ROUTE) {
-        HomeScreen(settingsViewModel = settingsViewModel)
+        HomeScreen(
+            settingsViewModel = settingsViewModel
+        )
     }
 }
 

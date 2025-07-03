@@ -56,7 +56,9 @@ class RankingViewModel @Inject constructor(
             val pulados = total - completados
             val taxa = if (total > 0) (completados * 100 / total) else 0
 
-            val allHabits = repository.getAllHabits()
+            // Para somar pontuação, precisamos dos hábitos
+            val allHabits = repository.getAllHabits("userId") // Substitua "userId" pelo ID do usuário atual
+
             val habitsMap = allHabits.associateBy { it.id }
             val pontos = logs.filter { it.isCompleted }.sumOf { habitsMap[it.habitId]?.pontuation ?: 0 }
 

@@ -146,7 +146,7 @@ fun PreRegisterHabitsScreen(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                 ),
-                onClick = { viewModel.attemptRegisterHabit(user?.uid ?: "", habit) }
+                onClick = { viewModel.registerPredefinedHabit(user?.uid ?: "", habit) }
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),

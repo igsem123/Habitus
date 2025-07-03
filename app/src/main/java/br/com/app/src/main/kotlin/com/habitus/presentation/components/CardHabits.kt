@@ -4,7 +4,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,21 +32,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
-import br.com.app.src.main.kotlin.com.habitus.presentation.helpers.toWeekdayNamesPt
 import br.com.app.src.main.kotlin.com.habitus.presentation.helpers.toWeekdayNamesPtList
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsViewModel
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.HabitusTheme
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.SuccessColor
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.SuccessGreen
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.TonalDarkGreen
-import br.com.app.src.main.kotlin.com.habitus.ui.theme.azulMarinho
 import compose.icons.AllIcons
 import compose.icons.LineAwesomeIcons
 import compose.icons.lineawesomeicons.CheckSolid
 import compose.icons.lineawesomeicons.PlusSolid
 import compose.icons.lineawesomeicons.Smile
 import compose.icons.lineawesomeicons.TrashSolid
-import kotlin.math.exp
 
 @Composable
 fun CardHabits(
