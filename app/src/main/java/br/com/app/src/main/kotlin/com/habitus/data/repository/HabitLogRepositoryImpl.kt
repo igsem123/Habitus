@@ -53,4 +53,5 @@ class HabitLogRepositoryImpl @Inject constructor(
     override suspend fun getHabitsCount(): Int {
         return db.habitDao().getHabitsCount()
     }
+
 }

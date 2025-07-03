@@ -48,8 +48,8 @@ class HabitRepositoryImpl @Inject constructor(
     ): List<HabitLogEntity> {
         return db.habitDao().filterHabitsByPeriod(inicioPeriodo, fimPeriodo)
     }
-//    override suspend fun getHabitsCount(): Int {
-//        return db.habitDao().getHabitsCount()
-//    }
+    override suspend fun getHabitsCount(): Int {
+        return db.habitDao().getHabitsCount()
+    }
 
 }

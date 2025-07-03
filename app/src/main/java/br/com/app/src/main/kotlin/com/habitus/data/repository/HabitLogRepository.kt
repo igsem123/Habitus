@@ -8,4 +8,5 @@ interface HabitLogRepository {
     suspend fun getLogForHabitAndDate(habitId: Long, date: Long): HabitLogEntity?
     suspend fun getLogsForDate(date: Long): List<HabitLogEntity>
     suspend fun getHabitsWithLogs(): List<HabitWithLogs>
+    suspend fun getHabitsCount(): Int
 }
