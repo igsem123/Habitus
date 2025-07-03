@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,10 +32,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
 import br.com.app.src.main.kotlin.com.habitus.presentation.helpers.toWeekdayNamesPt
 import br.com.app.src.main.kotlin.com.habitus.presentation.helpers.toWeekdayNamesPtList
+import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsViewModel
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.HabitusTheme
+import br.com.app.src.main.kotlin.com.habitus.ui.theme.SuccessColor
+import br.com.app.src.main.kotlin.com.habitus.ui.theme.SuccessGreen
+import br.com.app.src.main.kotlin.com.habitus.ui.theme.TonalDarkGreen
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.azulMarinho
 import compose.icons.AllIcons
 import compose.icons.LineAwesomeIcons
@@ -47,11 +54,13 @@ import kotlin.math.exp
 fun CardHabits(
     habit: HabitEntity,
     onCheckHabit: (Boolean) -> Unit = {},
-    onDeleteHabit: (Long) -> Unit = {}
+    onDeleteHabit: (Long) -> Unit = {},
+    settingsViewModel: SettingsViewModel,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var isChecked by remember { mutableStateOf(habit.isCompleted) }
     val days = habit.days.toWeekdayNamesPtList()
+    val darkTheme by settingsViewModel.darkTheme.collectAsState()
 
     Box(
         modifier = Modifier
@@ -62,7 +71,11 @@ fun CardHabits(
                 shape = RoundedCornerShape(16.dp)
             )
             .background(
-                color = if (isChecked) Color(0xFFDFF2E1) else MaterialTheme.colorScheme.background,
+                color = if (isChecked) {
+                    if (darkTheme) TonalDarkGreen else SuccessColor
+                } else {
+                    MaterialTheme.colorScheme.background
+                },
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -93,11 +106,11 @@ fun CardHabits(
                         .size(28.dp)
                         .border(
                             1.dp,
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                             MaterialTheme.shapes.small
                         )
                         .padding(4.dp),
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
                 Text(
                     text = habit.title,
@@ -105,15 +118,16 @@ fun CardHabits(
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Icon(
                     imageVector = if (isChecked) LineAwesomeIcons.CheckSolid else LineAwesomeIcons.PlusSolid,
                     contentDescription = null,
-                    tint = if (isChecked) Color.White else azulMarinho,
+                    tint = if (isChecked) Color.White else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .size(24.dp)
                         .background(
-                            color = if (isChecked) Color(0xFF4CAF50) else Color.White,
+                            color = if (isChecked) SuccessGreen else MaterialTheme.colorScheme.surfaceBright,
                             shape = CircleShape
                         )
                         .padding(4.dp)
@@ -164,7 +178,9 @@ fun CardHabits(
                                 modifier = Modifier
                                     .padding(horizontal = 2.dp, vertical = 4.dp)
                                     .background(
-                                        color = if (isChecked) MaterialTheme.colorScheme.background.copy(0.6f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                        color = if (isChecked) MaterialTheme.colorScheme.background.copy(
+                                            0.6f
+                                        ) else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -223,7 +239,8 @@ private fun CardHabitsPreview() {
                 days = listOf(1, 2, 3, 4, 5, 6, 7),
                 icon = "LineAwesomeIcons.HandPointUp"
             ),
-            onCheckHabit = {}
+            onCheckHabit = {},
+            settingsViewModel = hiltViewModel<SettingsViewModel>()
         )
     }
 }

@@ -110,7 +110,7 @@ fun RankingTypeSelector(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .background(color = Color(0xFFEAECF0), shape = RoundedCornerShape(24.dp))
+            .background(color = MaterialTheme.colorScheme.surfaceBright, shape = RoundedCornerShape(24.dp))
             .padding(4.dp)
     ) {
         Row(
@@ -127,8 +127,8 @@ fun RankingTypeSelector(
                         .height(40.dp),
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isSelected) Color.White else Color.Transparent,
-                        contentColor = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF686873)
+                        containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                        contentColor = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                     elevation = ButtonDefaults.buttonElevation(0.dp),
                     contentPadding = PaddingValues(horizontal = 4.dp)
@@ -137,7 +137,7 @@ fun RankingTypeSelector(
                         text = option.displayName,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
                     )
                 }
             }
@@ -183,8 +183,17 @@ fun DateNavigator(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(text = label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text(text = sublabel, fontSize = 14.sp, color = Color.Gray)
+            Text(
+                text = label,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = sublabel,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(0.6f),
+            )
         }
 
         Row {
@@ -192,8 +201,8 @@ fun DateNavigator(
                 onClick = { onDateChange(range.previous(currentDate)) },
                 modifier = Modifier.size(36.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color(0xFF686873)
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface.copy(0.6f)
                 ),
                 border = BorderStroke(1.dp, Color(0xFFEAECF0)),
                 shape = RoundedCornerShape(12.dp),
@@ -212,8 +221,8 @@ fun DateNavigator(
                 onClick = { onDateChange(range.next(currentDate)) },
                 modifier = Modifier.size(36.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color(0xFF686873)
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface.copy(0.6f)
                 ),
                 border = BorderStroke(1.dp, Color(0xFFEAECF0)),
                 shape = RoundedCornerShape(12.dp),
@@ -259,8 +268,17 @@ fun StatsCard(
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = selectedCategoria, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(text = "Resumo", fontSize = 14.sp, color = Color.Gray)
+                Text(
+                    text = selectedCategoria,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = "Resumo",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
             }
 
             Box {
@@ -268,8 +286,8 @@ fun StatsCard(
                     onClick = { expanded = true },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.textButtonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Gray
+                        contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        containerColor = Color.Transparent
                     ),
                     border = BorderStroke(1.dp, Color(0xFFEAECF0)),
                 ) {
@@ -285,7 +303,8 @@ fun StatsCard(
 
                 DropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onDismissRequest = { expanded = false },
+                    containerColor = MaterialTheme.colorScheme.surface,
                 ) {
                     listOfCategories.forEach {
                         DropdownMenuItem(

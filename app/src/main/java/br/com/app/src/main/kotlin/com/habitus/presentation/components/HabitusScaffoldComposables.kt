@@ -6,12 +6,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.BottomAppBarScrollBehavior
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +25,6 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,10 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import br.com.app.src.main.kotlin.com.habitus.R
 import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
-import compose.icons.FontAwesomeIcons
 import compose.icons.LineAwesomeIcons
-import compose.icons.fontawesomeicons.Solid
-import compose.icons.fontawesomeicons.solid.Award
 import compose.icons.lineawesomeicons.ArrowLeftSolid
 import compose.icons.lineawesomeicons.AwardSolid
 import compose.icons.lineawesomeicons.CogSolid
@@ -60,7 +61,7 @@ fun TopAppBarForOtherScreens(
             .fillMaxWidth()
             .paint(
                 painter = painterResource(R.drawable.bc_top_appbar),
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                 contentScale = ContentScale.FillWidth
             ),
         contentAlignment = Alignment.Center
@@ -74,7 +75,7 @@ fun TopAppBarForOtherScreens(
                 Icon(
                     imageVector = LineAwesomeIcons.ArrowLeftSolid,
                     contentDescription = "Adicionar",
-                    tint = MaterialTheme.colorScheme.onTertiary,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier
                         .size(24.dp)
                         .clickable {
@@ -86,7 +87,7 @@ fun TopAppBarForOtherScreens(
 
             Text(
                 text = title ?: "",
-                color = MaterialTheme.colorScheme.onTertiary,
+                color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Light),
                 modifier = Modifier
                     .align(Alignment.Center),
@@ -99,7 +100,7 @@ fun TopAppBarForOtherScreens(
 
 @Composable
 fun TopAppBarForHomeScreen(
-    onNavigateToRegisterHabits: () -> Unit,
+    onNavigateToPreRegisterHabits: () -> Unit,
     user: UserEntity
 ) {
     Box(
@@ -109,7 +110,7 @@ fun TopAppBarForHomeScreen(
             .paint(
                 painter = painterResource(R.drawable.bc_top_appbar),
                 contentScale = ContentScale.FillWidth,
-                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.tertiary)
+                colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary)
             ),
     ) {
         // Botão flutuante de adicionar
@@ -131,12 +132,12 @@ fun TopAppBarForHomeScreen(
                 modifier = Modifier
                     .size(48.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.tertiary,
+                        color = MaterialTheme.colorScheme.primary,
                         shape = RoundedCornerShape(16.dp)
                     )
                     .padding(12.dp)
                     .clickable {
-                        onNavigateToRegisterHabits()
+                        onNavigateToPreRegisterHabits()
                     }
             )
         }
@@ -147,43 +148,58 @@ fun TopAppBarForHomeScreen(
                 .align(Alignment.CenterStart)
                 .padding(start = 16.dp, bottom = 8.dp, top = 28.dp),
         ) {
-            Text("Olá, ${user.username.replaceFirstChar { it.uppercase() }}!", color = Color.White, fontWeight = FontWeight.Bold)
-            Text("Vamos criar hábitos!", color = Color.White.copy(alpha = 0.8f))
+            Text(
+                "Olá, ${user.username.replaceFirstChar { it.uppercase() }}!",
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontWeight = FontWeight.Bold
+            )
+            Text("Vamos criar hábitos!", color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f))
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BottomAppBar(
     onHomeClick: () -> Unit = {},
     onRankingClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {}
+    onSettingsClick: () -> Unit = {},
+    scrollBehavior: BottomAppBarScrollBehavior,
 ) {
     val bottomItems = listOf(
         "Home" to LineAwesomeIcons.HomeSolid,
         "Ranking" to LineAwesomeIcons.AwardSolid,
         "Settings" to LineAwesomeIcons.CogSolid
     )
-    Box(
+    FlexibleBottomAppBar(
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .shadow(2.dp, shape = MaterialTheme.shapes.medium)
-            .clip(MaterialTheme.shapes.medium)
-            .fillMaxWidth()
-            .height(54.dp)
-            .background(color = MaterialTheme.colorScheme.surface),
-        contentAlignment =  Alignment.Center,
+            .fillMaxWidth(),
+        scrollBehavior = scrollBehavior,
+        windowInsets = BottomAppBarDefaults.windowInsets
     ) {
-        Row(
-            modifier = Modifier
-                .matchParentSize(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            // Estado para controlar o item selecionado de acordo com o índice da lista
-            var selectedIndex by remember { mutableIntStateOf(0) }
+        // Estado para controlar o item selecionado de acordo com o índice da lista
+        var selectedIndex by remember { mutableIntStateOf(0) }
+        bottomItems.forEachIndexed { index, item ->
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+                    .clickable { selectedIndex = index },
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(3.dp)
+                        .background(
+                            if (selectedIndex == index) MaterialTheme.colorScheme.primary.copy(0.6f)
+                            else Color.Transparent,
+                            shape = MaterialTheme.shapes.medium
+                        ),
+                    contentAlignment = Alignment.Center
+                ){}
 
-            bottomItems.forEachIndexed { index, item ->
                 IconButton(
                     onClick = {
                         when (item.first) {
@@ -194,27 +210,24 @@ fun BottomAppBar(
                         selectedIndex = index
                     },
                     modifier = Modifier
-                        .padding(8.dp)
+                        .padding(16.dp)
                         .clip(MaterialTheme.shapes.medium)
-                        .background(
-                            color = if(selectedIndex == index) MaterialTheme.colorScheme.surfaceTint.copy(0.1f) else Color.Transparent,
-                        )
-                        .height(34.dp)
-                        .padding(4.dp)
                 ) {
                     Icon(
                         imageVector = item.second,
                         contentDescription = null,
-                        tint = if(selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
-                    )
-                }
-
-                if (item != bottomItems.last()) {
-                    VerticalDivider(
+                        tint = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                         modifier = Modifier
-                            .padding(8.dp)
+                            .size(24.dp)
                     )
                 }
+            }
+
+            if (item != bottomItems.last()) {
+                VerticalDivider(
+                    modifier = Modifier
+                        .padding(vertical = 24.dp)
+                )
             }
         }
     }
