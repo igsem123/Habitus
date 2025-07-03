@@ -153,12 +153,8 @@ fun HomeScreen(
                 habitsForDay.forEach { habit ->
                     CardHabits(
                         habit = habit,
-                        //comentei pq a isso atualiza todos os habitos e nao só o habito de hoje
-//                        onCheckHabit = {
-//                            viewModel.checkHabit(it, habit)
-//                        },
                         onCheckHabit = { isChecked ->
-                            viewModel.checkHabitForToday(habit.id, isChecked)
+                            viewModel.checkHabitForToday(habit, isChecked)
                         },
                         onDeleteHabit = {
                             viewModel.deleteHabit(habit.id)

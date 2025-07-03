@@ -31,7 +31,7 @@ import java.time.LocalDate
 @HiltViewModel
 class HabitsViewModel @Inject constructor(
     private val repository: HabitRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
     private val habitLogRepository: HabitLogRepository
 ) : ViewModel() {
     // StateFlow para o UiState da tela de registro
@@ -48,8 +48,26 @@ class HabitsViewModel @Inject constructor(
     //    Recalculado AUTOMATICAMENTE sempre que _allHabits ou _selectedDate mudar.
     val habitsForSelectedDay: StateFlow<List<HabitEntity>> =
         combine(_allHabits, _selectedDate) { habits, date ->
-            val dayOfWeek = date.dayOfWeek.value
-            habits.filter { it.days.contains(dayOfWeek) }
+            // --- CORREÇÃO APLICADA AQUI ---
+
+            // 1. Pega o dia da semana do calendário (ex: MONDAY, TUESDAY, etc.)
+            val javaDay = date.dayOfWeek
+
+            // 2. Converte o dia do calendário para o valor correspondente no seu Enum Days
+            val dayValueInYourSystem = when (javaDay) {
+                java.time.DayOfWeek.SUNDAY -> 1
+                java.time.DayOfWeek.MONDAY -> 2
+                java.time.DayOfWeek.TUESDAY -> 3
+                java.time.DayOfWeek.WEDNESDAY -> 4
+                java.time.DayOfWeek.THURSDAY -> 5
+                java.time.DayOfWeek.FRIDAY -> 6
+                java.time.DayOfWeek.SATURDAY -> 7
+            }
+
+            Log.d("ViewModel_Filter", "Data: $date. Convertido para o dia do nosso sistema: $dayValueInYourSystem")
+
+            // 3. Filtra usando o valor convertido e correto
+            habits.filter { it.days.contains(dayValueInYourSystem) }
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -88,7 +106,7 @@ class HabitsViewModel @Inject constructor(
                     Log.d("HabitsViewModel", "Usuário tornou-se nulo. Limpando hábitos.")
                 }
             }
-            
+
             generateDailyLogsIfNeeded() // <-- para popular a tabela HabitWithLogs com os hábitos que existem naquele dia
         }
     }
@@ -101,10 +119,12 @@ class HabitsViewModel @Inject constructor(
     // Função para recarregar todos os hábitos (chame após criar/deletar um hábito)
     private fun loadAllHabits(userId: String) {
         viewModelScope.launch {
+            Log.d("HabitsViewModel", "Carregando hábitos para o usuário: $userId")
             val habitsFromDb = withContext(Dispatchers.IO) {
                 repository.getAllHabits(userId)
             }
             _allHabits.value = habitsFromDb
+            Log.d("HabitsViewModel", "Hábitos carregados: ${habitsFromDb.count()}")
         }
     }
 
@@ -191,7 +211,9 @@ class HabitsViewModel @Inject constructor(
                 _registerUiState.update { it.copy(isSaving = false, saveSuccess = true) }
 
                 // Recarrega todos os hábitos após o registro
+                Log.d("HabitsViewModel", "Recarregando hábitos após registro")
                 currentUserId?.let { uid ->
+                    Log.d("HabitsViewModel", "ID do usuário: $uid")
                     loadAllHabits(uid)
                 }
             } catch (e: Exception) {
@@ -309,39 +331,19 @@ class HabitsViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Marca um hábito como concluído ou não concluído.
-     *
-     * @param isCompleted Indica se o hábito foi concluído (true) ou não (false).
-     * @param entity O objeto HabitEntity que representa o hábito a ser atualizado.
-     */
-//    fun checkHabit(isCompleted: Boolean, entity: HabitEntity) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                val updatedHabit = entity.copy(isCompleted = isCompleted)
-//
-//                // Atualiza o hábito no repositório
-//                repository.updateHabit(updatedHabit)
-//                getAllHabits()
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
-
     //COMENTEI A FUCNAO "checkHabit"  PQ ELA MARCA COMO "FEITO" O HABITO TODINHO E NAO SÓ DO HABITO DE HOJE
     // FUNCAO QUE MARCA COMO FEITO O HABITO DE HOJE
-    fun checkHabitForToday(habitId: Long, isCompleted: Boolean) {
+    fun checkHabitForToday(updatedHabit: HabitEntity, isCompleted: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             val today = getTodayDateMillis()
-            val log = habitLogRepository.getLogForHabitAndDate(habitId, today)
+            val log = habitLogRepository.getLogForHabitAndDate(updatedHabit.id, today)
 
-                // Atualiza o hábito no repositório
-                repository.updateHabit(updatedHabit)
+            // Atualiza o hábito no repositório
+            repository.updateHabit(updatedHabit)
 
-                currentUserId?.let { uid ->
-                    loadAllHabits(uid)
-                }
+            currentUserId?.let { uid ->
+                loadAllHabits(uid)
+            }
 
             if (log != null) {
                 val updatedLog = log.copy(isCompleted = isCompleted)
@@ -350,33 +352,11 @@ class HabitsViewModel @Inject constructor(
                 // fallback: cria um log se não existir (opcional)
                 habitLogRepository.insertLog(
                     HabitLogEntity(
-                        habitId = habitId,
+                        habitId = updatedHabit.id,
                         date = today,
                         isCompleted = isCompleted
                     )
                 )
-            }
-        }
-    }
-
-
-    /**
-     * Filtra os hábitos com base no dia selecionado.
-     *
-     * @param selectedDate A data selecionada para filtrar os hábitos.
-     */
-    fun filterHabitsByDay(selectedDate: LocalDate) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val allHabits = repository.getAllHabits()
-            val dayOfWeek = selectedDate.dayOfWeek.value // 1 = Segunda ... 7 = Domingo
-
-            // Filtra os hábitos com base no dia da semana
-            val filteredHabits = allHabits.filter { habit ->
-                habit.days.contains(dayOfWeek)
-            }
-
-            withContext(Dispatchers.Main) {
-                _homeUiState.value = _homeUiState.value?.copy(habits = filteredHabits)
             }
         }
     }
@@ -393,20 +373,26 @@ class HabitsViewModel @Inject constructor(
     fun generateDailyLogsIfNeeded() {
         viewModelScope.launch(Dispatchers.IO) {
             val todayMillis = getTodayDateMillis()
-            val allHabits = repository.getAllHabits()
-            val currentDayOfWeek = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK) // 1 = Domingo
 
-            allHabits.forEach { habit ->
-                if (currentDayOfWeek in habit.days) {
-                    val existing = habitLogRepository.getLogForHabitAndDate(habit.id, todayMillis)
-                    if (existing == null) {
-                        habitLogRepository.insertLog(
-                            br.com.app.src.main.kotlin.com.habitus.data.entity.HabitLogEntity(
-                                habitId = habit.id,
-                                date = todayMillis,
-                                isCompleted = false
+            currentUserId?.let { uid ->
+                val allHabits = repository.getAllHabits(uid)
+
+                val currentDayOfWeek = java.util.Calendar.getInstance()
+                    .get(java.util.Calendar.DAY_OF_WEEK) // 1 = Domingo
+
+                allHabits.forEach { habit ->
+                    if (currentDayOfWeek in habit.days) {
+                        val existing =
+                            habitLogRepository.getLogForHabitAndDate(habit.id, todayMillis)
+                        if (existing == null) {
+                            habitLogRepository.insertLog(
+                                HabitLogEntity(
+                                    habitId = habit.id,
+                                    date = todayMillis,
+                                    isCompleted = false
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
