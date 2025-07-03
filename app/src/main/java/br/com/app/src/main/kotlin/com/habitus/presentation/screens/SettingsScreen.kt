@@ -27,6 +27,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.ktx.userProfileChangeRequest
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToInitialForm
+import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -38,11 +42,14 @@ fun SettingsScreen(navController: NavController) {
     var showEditDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
 
+    val viewModel: SettingsViewModel = hiltViewModel()
+
     var darkTheme by remember { mutableStateOf(prefs.getBoolean("dark_theme", false)) }
     var allowNotifications by remember { mutableStateOf(prefs.getBoolean("allow_notifications", true)) }
 
     var name by remember { mutableStateOf(user?.displayName ?: "") }
     var email by remember { mutableStateOf(user?.email ?: "") }
+
 
     if (user == null) {
         Toast.makeText(context, "Usuário não autenticado", Toast.LENGTH_SHORT).show()
