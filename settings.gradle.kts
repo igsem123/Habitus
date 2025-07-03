@@ -16,9 +16,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") } // ✅ O JitPack está aqui
     }
 }
 
 rootProject.name = "Habitus"
 include(":app")
- 

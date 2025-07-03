@@ -32,6 +32,13 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
+import android.view.ViewGroup
+import androidx.compose.ui.viewinterop.AndroidView
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+
 @Composable
 fun RankingScreen(
     viewModel: RankingViewModel = hiltViewModel()
@@ -78,17 +85,56 @@ fun RankingScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Card(
+        AndroidView(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
-                .shadow(2.dp, RoundedCornerShape(16.dp)),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text("Gráfico será implementado aqui")
+                .height(300.dp),
+            factory = { context ->
+                BarChart(context).apply {
+                    // Aqui dentro você configura o gráfico de barras
+                    val dias = listOf("Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom")
+                    val taxasPassada = listOf(70f, 65f, 80f, 75f, 60f, 85f, 90f)
+                    val taxasAtual = listOf(80f, 70f, 85f, 60f, 65f, 88f, 95f)
+
+                    val entriesAtual = taxasAtual.mapIndexed { index, taxa ->
+                        BarEntry(index.toFloat(), taxa)
+                    }
+                    val entriesPassado = taxasPassada.mapIndexed { index, taxa ->
+                        BarEntry(index.toFloat(), taxa)
+                    }
+
+                    val setAtual = BarDataSet(entriesAtual, "Atual").apply {
+                        color = android.graphics.Color.rgb(60, 130, 230)
+                    }
+                    val setPassado = BarDataSet(entriesPassado, "Anterior").apply {
+                        color = android.graphics.Color.LTGRAY
+                    }
+
+                    val data = BarData(setPassado, setAtual)
+                    data.barWidth = 0.3f
+
+                    this.data = data
+                    this.description.isEnabled = false
+                    this.axisRight.isEnabled = false
+
+                    xAxis.valueFormatter = IndexAxisValueFormatter(dias)
+                    xAxis.position = XAxis.XAxisPosition.BOTTOM
+                    xAxis.setDrawGridLines(false)
+                    xAxis.granularity = 1f
+                    xAxis.setCenterAxisLabels(true)
+
+                    axisLeft.axisMinimum = 0f
+
+                    val groupSpace = 0.3f
+                    val barSpace = 0.05f
+                    val groupCount = dias.size
+                    this.setVisibleXRangeMaximum(groupCount.toFloat())
+                    this.groupBars(0f, groupSpace, barSpace)
+                    this.invalidate()
+                }
             }
-        }
+        )
+
 
         Spacer(modifier = Modifier.height(54.dp))
     }
@@ -371,6 +417,70 @@ fun isCurrentWeek(date: LocalDate): Boolean {
     val thisMonday = now.with(DayOfWeek.MONDAY)
     val thisSunday = now.with(DayOfWeek.SUNDAY)
     return date in thisMonday..thisSunday
+}
+
+@Composable
+fun RankingBarChart() {
+    val dias = listOf("Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom")
+    val taxasPassada = listOf(70f, 65f, 80f, 75f, 60f, 85f, 90f)
+    val taxasAtual = listOf(80f, 70f, 85f, 60f, 65f, 88f, 95f)
+
+    AndroidView(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .padding(horizontal = 16.dp),
+        factory = { context ->
+            BarChart(context).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            }
+        },
+        update = { barChart ->
+            val groupCount = dias.size
+            val barWidth = 0.3f
+            val barSpace = 0.05f
+            val groupSpace = 0.3f
+
+            val entriesAtual = taxasAtual.mapIndexed { index, taxa ->
+                BarEntry(index.toFloat(), taxa)
+            }
+            val entriesPassado = taxasPassada.mapIndexed { index, taxa ->
+                BarEntry(index.toFloat(), taxa)
+            }
+
+            val dataSetAtual = BarDataSet(entriesAtual, "Semana Atual").apply {
+//                color = Color(0xFFF2B600)
+            }
+            val dataSetPassado = BarDataSet(entriesPassado, "Semana Passada").apply {
+//                color = Color.Gray
+            }
+
+            val barData = BarData(dataSetPassado, dataSetAtual).apply {
+                this.barWidth = barWidth
+            }
+
+            barChart.data = barData
+
+            barChart.xAxis.apply {
+                valueFormatter = IndexAxisValueFormatter(dias)
+                granularity = 1f
+                setCenterAxisLabels(true)
+                setDrawGridLines(false)
+                position = XAxis.XAxisPosition.BOTTOM
+            }
+
+            barChart.axisLeft.axisMinimum = 0f
+            barChart.axisRight.isEnabled = false
+            barChart.description.isEnabled = false
+
+            barChart.setVisibleXRangeMaximum(groupCount.toFloat())
+            barChart.groupBars(0f, groupSpace, barSpace)
+            barChart.invalidate()
+        }
+    )
 }
 
 @Preview(showBackground = true)
