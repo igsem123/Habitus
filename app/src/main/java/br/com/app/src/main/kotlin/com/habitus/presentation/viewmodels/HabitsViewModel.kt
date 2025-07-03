@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.com.app.src.main.kotlin.com.habitus.data.entity.Days
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
+import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitLogEntity
+import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitLogRepository
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
 import br.com.app.src.main.kotlin.com.habitus.presentation.states.HomeUiState
 import br.com.app.src.main.kotlin.com.habitus.presentation.states.RegisterHabitUiState
@@ -25,7 +27,9 @@ import java.time.LocalDate
 
 @HiltViewModel
 class HabitsViewModel @Inject constructor(
-    private val repository: HabitRepository
+    private val repository: HabitRepository,
+    private val habitRepository: HabitRepository,
+    private val habitLogRepository: HabitLogRepository
 ) : ViewModel() {
 
     private val _homeUiState = MutableStateFlow<HomeUiState?>(null)
@@ -45,6 +49,7 @@ class HabitsViewModel @Inject constructor(
         // Inicializa o ViewModel obtendo todos os hábitos do repositório
         viewModelScope.launch(Dispatchers.IO) {
             getAllHabits()
+            generateDailyLogsIfNeeded() // <-- para popular a tabela HabitWithLogs com os hábitos que existem naquele dia
         }
     }
 
@@ -223,19 +228,43 @@ class HabitsViewModel @Inject constructor(
      * @param isCompleted Indica se o hábito foi concluído (true) ou não (false).
      * @param entity O objeto HabitEntity que representa o hábito a ser atualizado.
      */
-    fun checkHabit(isCompleted: Boolean, entity: HabitEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val updatedHabit = entity.copy(isCompleted = isCompleted)
+//    fun checkHabit(isCompleted: Boolean, entity: HabitEntity) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                val updatedHabit = entity.copy(isCompleted = isCompleted)
+//
+//                // Atualiza o hábito no repositório
+//                repository.updateHabit(updatedHabit)
+//                getAllHabits()
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }
 
-                // Atualiza o hábito no repositório
-                repository.updateHabit(updatedHabit)
-                getAllHabits()
-            } catch (e: Exception) {
-                e.printStackTrace()
+    //COMENTEI A FUCNAO "checkHabit"  PQ ELA MARCA COMO "FEITO" O HABITO TODINHO E NAO SÓ DO HABITO DE HOJE
+    // FUNCAO QUE MARCA COMO FEITO O HABITO DE HOJE
+    fun checkHabitForToday(habitId: Long, isCompleted: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val today = getTodayDateMillis()
+            val log = habitLogRepository.getLogForHabitAndDate(habitId, today)
+
+            if (log != null) {
+                val updatedLog = log.copy(isCompleted = isCompleted)
+                habitLogRepository.insertLog(updatedLog) // substitui (porque é onConflict = REPLACE)
+            } else {
+                // fallback: cria um log se não existir (opcional)
+                habitLogRepository.insertLog(
+                    HabitLogEntity(
+                        habitId = habitId,
+                        date = today,
+                        isCompleted = isCompleted
+                    )
+                )
             }
         }
     }
+
 
     /**
      * Filtra os hábitos com base no dia selecionado.
@@ -256,5 +285,47 @@ class HabitsViewModel @Inject constructor(
                 _homeUiState.value = _homeUiState.value?.copy(habits = filteredHabits)
             }
         }
+    }
+
+
+    // FUNCOES PARA REGISTAR E POPULAR A TABELA  HabitWithLogs
+
+    // Oq a função  "generateDailyLogsIfNeeded()" pretende fazer:
+    //Ao iniciar o app, ele gera os logs do dia automaticamente;
+    //Ele verifica quais hábitos devem ser feitos hoje;
+    //Evita duplicatas (checa se o log já existe);
+    //Salva com isCompleted = false e aguarda o usuário marcar como feito.
+
+    fun generateDailyLogsIfNeeded() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val todayMillis = getTodayDateMillis()
+            val allHabits = repository.getAllHabits()
+            val currentDayOfWeek = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK) // 1 = Domingo
+
+            allHabits.forEach { habit ->
+                if (currentDayOfWeek in habit.days) {
+                    val existing = habitLogRepository.getLogForHabitAndDate(habit.id, todayMillis)
+                    if (existing == null) {
+                        habitLogRepository.insertLog(
+                            br.com.app.src.main.kotlin.com.habitus.data.entity.HabitLogEntity(
+                                habitId = habit.id,
+                                date = todayMillis,
+                                isCompleted = false
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    //ver SE/ONDE já existe alguma função parecida
+    private fun getTodayDateMillis(): Long {
+        val calendar = java.util.Calendar.getInstance()
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+        calendar.set(java.util.Calendar.MINUTE, 0)
+        calendar.set(java.util.Calendar.SECOND, 0)
+        calendar.set(java.util.Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
     }
 }

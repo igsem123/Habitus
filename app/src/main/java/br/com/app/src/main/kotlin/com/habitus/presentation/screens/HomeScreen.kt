@@ -152,8 +152,12 @@ fun HomeScreen(
                 uiState?.habits?.forEach { habit ->
                     CardHabits(
                         habit = habit,
-                        onCheckHabit = {
-                            viewModel.checkHabit(it, habit)
+                        //comentei pq a isso atualiza todos os habitos e nao só o habito de hoje
+//                        onCheckHabit = {
+//                            viewModel.checkHabit(it, habit)
+//                        },
+                        onCheckHabit = { isChecked ->
+                            viewModel.checkHabitForToday(habit.id, isChecked)
                         },
                         onDeleteHabit = {
                             viewModel.deleteHabit(habit.id)
