@@ -112,12 +112,10 @@ fun InitialFormScreen(modifier: Modifier = Modifier, onNavigateToHome: () -> Uni
             when (screen) {
                 "splash" -> SplashContent()
                 "cadastro" -> CadastroForm(
-                    onNavigateToHome = onNavigateToHome,
                     onGoToLogin = { currentScreen = "login" }
                 )
 
                 "login" -> LoginForm(
-                    onNavigateToHome = onNavigateToHome,
                     onGoToCadastro = { currentScreen = "cadastro" }
                 )
             }
@@ -188,13 +186,11 @@ fun SplashContent() {
  * Exibe o formulário para o usuário preencher nome, e-mail, senha e confirmação de senha.
  * Ao concluir, pode seguir para a tela principal ou ir para a tela de login.
  *
- * @param onNavigateToHome Chamada quando o usuário finaliza o cadastro com sucesso.
  * @param onGoToLogin Chamada quando o usuário escolhe ir para a tela de login.
  */
 
 @Composable
 fun CadastroForm(
-    onNavigateToHome: () -> Unit,
     onGoToLogin: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
@@ -208,7 +204,6 @@ fun CadastroForm(
 
     if (authState is AuthResponse.Success) {
         viewModel.resetState()
-        onNavigateToHome()
     }
 
     Column(
@@ -382,13 +377,11 @@ fun CadastroForm(
  * Permite que o usuário entre com e-mail e senha. Também pode acessar a tela de cadastro
  * caso ainda não tenha uma conta.
  *
- * @param onNavigateToHome Chamada quando o login é feito com sucesso.
  * @param onGoToCadastro Chamada quando o usuário escolhe ir para a tela de cadastro.
  */
 
 @Composable
 fun LoginForm(
-    onNavigateToHome: () -> Unit,
     onGoToCadastro: () -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
@@ -401,7 +394,6 @@ fun LoginForm(
 
     if (authState is AuthResponse.Success) {
         viewModel.resetState()
-        onNavigateToHome()
     }
 
     Column(

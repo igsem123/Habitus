@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.CalendarioComponent
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.CardHabits
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.HabitsViewModel
@@ -45,10 +44,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     viewModel: HabitsViewModel = hiltViewModel(),
-    settingsViewModel: SettingsViewModel,
-    user: UserEntity
+    settingsViewModel: SettingsViewModel
 ) {
-    val uiState by viewModel.homeUiState.collectAsState()
+    val habitsForDay by viewModel.habitsForSelectedDay.collectAsState()
     val completed by viewModel.completedTasksCount.collectAsState()
     val total by viewModel.totalTasksCount.collectAsState()
     val darkTheme by settingsViewModel.darkTheme.collectAsStateWithLifecycle()
@@ -68,7 +66,7 @@ fun HomeScreen(
                 onSelectedDay = { selectedDate ->
                     // Atualiza o estado do ViewModel com a data selecionada
                     viewModel.viewModelScope.launch {
-                        viewModel.filterHabitsByDay(selectedDate, user.uid)
+                        viewModel.onDateSelected(selectedDate)
                     }
                 }
             )
@@ -152,7 +150,7 @@ fun HomeScreen(
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                uiState?.habits?.forEach { habit ->
+                habitsForDay.forEach { habit ->
                     CardHabits(
                         habit = habit,
                         onCheckHabit = {
@@ -174,12 +172,7 @@ fun HomeScreen(
 fun HabitsScreenPreview() {
     HabitusTheme {
         HomeScreen(
-            settingsViewModel = hiltViewModel<SettingsViewModel>(),
-            user = UserEntity(
-                uid = "12345",
-                username = "Usuário de Teste",
-                email = ""
-            )
+            settingsViewModel = hiltViewModel<SettingsViewModel>()
         )
     }
 }

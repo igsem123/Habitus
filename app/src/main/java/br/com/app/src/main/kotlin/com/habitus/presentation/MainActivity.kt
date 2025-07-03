@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -39,6 +40,7 @@ import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinatio
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.homeNavigation
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.initialFormNavigation
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToHome
+import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToInitialForm
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToPreRegisterHabits
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToRanking
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToSettings
@@ -85,6 +87,16 @@ fun Habitus(
 
     val startDestination = if (firebaseUser != null) HOME_ROUTE else INITIAL_FORM_ROUTE
     val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+
+    // Uso do LaunchedEffect para navegar quando o estado de autenticação mudar
+    LaunchedEffect(firebaseUser) {
+        val currentRoute = navController.currentBackStackEntry?.destination?.route
+        if (firebaseUser != null && currentRoute != HOME_ROUTE) {
+            navController.navigateToHome()
+        } else if (firebaseUser == null && currentRoute != INITIAL_FORM_ROUTE) {
+            navController.navigateToInitialForm()
+        }
+    }
 
     Scaffold(
         modifier = modifier

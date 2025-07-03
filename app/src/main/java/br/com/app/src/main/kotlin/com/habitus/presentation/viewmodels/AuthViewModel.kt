@@ -33,6 +33,13 @@ class AuthViewModel @Inject constructor(
     private val _password = MutableStateFlow<String>("")
     val password = _password.asStateFlow()
 
+    init {
+        // Ouve as mudanças de autenticação do Firebase
+        authRepository.addAuthStateListener { firebaseUser ->
+            _user.value = firebaseUser
+        }
+    }
+
     fun onEmailChange(email: String) {
         _email.value = email
     }
