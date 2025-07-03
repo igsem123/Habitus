@@ -121,9 +121,24 @@ class HabitsViewModel @Inject constructor(
      *
      * @param habit O objeto HabitEntity que representa o hábito a ser registrado.
      */
-    fun attemptRegisterHabit(userId: String) {
+    fun attemptRegisterHabit(userId: String, habit: HabitEntity? = null) {
         val state = _registerUiState.value
         val pontuationInt = state.pontuation.toIntOrNull()
+
+        if (habit != null) {
+            Log.d("HabitsViewModel", "Updating register state with existing habit: $habit")
+            _registerUiState.update {
+                it.copy(
+                    habitName = habit.title,
+                    habitDescription = habit.description,
+                    selectedCategory = habit.category,
+                    selectedFrequency = habit.frequency,
+                    pontuation = habit.pontuation.toString(),
+                    selectedDays = Days.entries.filter { day -> habit.days.contains(day.value) },
+                    selectedIconName = habit.icon
+                )
+            }
+        }
 
         // Validação
         if (state.habitName.isBlank()) {
@@ -152,14 +167,20 @@ class HabitsViewModel @Inject constructor(
                     pontuation = pontuationInt,
                     isCompleted = false, // Inicialmente, o hábito não está completo
                     days = state.selectedDays.map { it.value },
-                    icon = state.selectedIconName ?: LineAwesomeIcons.Smile.name, // Fallback para um ícone padrão
+                    icon = state.selectedIconName
+                        ?: LineAwesomeIcons.Smile.name, // Fallback para um ícone padrão
                     userId = userId
                 )
                 repository.insertHabit(habit)
                 _registerUiState.update { it.copy(isSaving = false, saveSuccess = true) }
                 getAllHabits() // Atualiza a lista de hábitos após o registro
             } catch (e: Exception) {
-                _registerUiState.update { it.copy(isSaving = false, error = "Falha ao salvar o hábito: ${e.message}") }
+                _registerUiState.update {
+                    it.copy(
+                        isSaving = false,
+                        error = "Falha ao salvar o hábito: ${e.message}"
+                    )
+                }
             }
         }
     }

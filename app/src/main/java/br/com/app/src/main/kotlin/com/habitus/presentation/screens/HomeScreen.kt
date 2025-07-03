@@ -20,39 +20,36 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.CalendarioComponent
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.CardHabits
-import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.AuthViewModel
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.HabitsViewModel
+import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsViewModel
 import br.com.app.src.main.kotlin.com.habitus.ui.theme.HabitusTheme
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
-    onNavigateToRegisterHabits: () -> Unit = {},
     viewModel: HabitsViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel()
+    settingsViewModel: SettingsViewModel
 ) {
-    val user by authViewModel.user.collectAsState()
     val uiState by viewModel.homeUiState.collectAsState()
     val completed by viewModel.completedTasksCount.collectAsState()
     val total by viewModel.totalTasksCount.collectAsState()
+    val darkTheme by settingsViewModel.darkTheme.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier
@@ -88,8 +85,8 @@ fun HomeScreen(
                     .background(
                         brush = Brush.horizontalGradient(
                             listOf(
-                                MaterialTheme.colorScheme.tertiary,
-                                MaterialTheme.colorScheme.primary
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.tertiary
                             )
                         ),
                         shape = RoundedCornerShape(16.dp)
@@ -110,12 +107,16 @@ fun HomeScreen(
                         modifier = Modifier
                             .size(48.dp)
                             .padding(4.dp),
-                        color = Color.White,
+                        trackColor = if (darkTheme)
+                            MaterialTheme.colorScheme.tertiary
+                        else
+                            MaterialTheme.colorScheme.primaryContainer,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         waveSpeed = 8.dp
                     )
                     Text(
                         text = "Sua meta diária!\n$completed de $total hábitos",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                     )
@@ -135,7 +136,7 @@ fun HomeScreen(
                     .padding(horizontal = 16.dp)
                     .shadow(2.dp, RoundedCornerShape(16.dp))
                     .background(
-                        color = MaterialTheme.colorScheme.surface,
+                        color = MaterialTheme.colorScheme.surfaceBright,
                         shape = RoundedCornerShape(16.dp)
                     )
                     .padding(16.dp)
@@ -144,7 +145,7 @@ fun HomeScreen(
                     text = "Hábitos",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.headlineSmall
                 )
@@ -158,6 +159,7 @@ fun HomeScreen(
                         onDeleteHabit = {
                             viewModel.deleteHabit(habit.id)
                         },
+                        settingsViewModel = settingsViewModel
                     )
                 }
             }
@@ -169,6 +171,8 @@ fun HomeScreen(
 @Composable
 fun HabitsScreenPreview() {
     HabitusTheme {
-        HomeScreen()
+        HomeScreen(
+            settingsViewModel = hiltViewModel<SettingsViewModel>()
+        )
     }
 }

@@ -2,6 +2,10 @@ package br.com.app.src.main.kotlin.com.habitus.sample
 
 import br.com.app.src.main.kotlin.com.habitus.data.entity.Days
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
+import compose.icons.LineAwesomeIcons
+import compose.icons.lineawesomeicons.BookSolid
+import compose.icons.lineawesomeicons.BrainSolid
+import compose.icons.lineawesomeicons.RunningSolid
 
 val listOfCategories = listOf(
     "Desenvolvimento Pessoal",
@@ -22,7 +26,7 @@ val sampleHabits = listOf(
         category = "Desenvolvimento Pessoal",
         pontuation = 10,
         days = listOf(Days.MONDAY.value, Days.FRIDAY.value),
-        icon = "LineAwesomeIcons.BookOpen"
+        icon = "BookSolid"
     ),
     HabitEntity(
         title = "Meditar 10 minutos",
@@ -30,7 +34,7 @@ val sampleHabits = listOf(
         category = "Saúde e Bem-estar",
         pontuation = 8,
         days = listOf(Days.TUESDAY.value, Days.THURSDAY.value),
-        icon = "LineAwesomeIcons.Brain"
+        icon = "BrainSolid"
     ),
     HabitEntity(
         title = "Beber 2L de água",
@@ -38,7 +42,7 @@ val sampleHabits = listOf(
         category = "Saúde e Bem-estar",
         pontuation = 5,
         days = listOf(Days.WEDNESDAY.value, Days.SATURDAY.value),
-        icon = "LineAwesomeIcons.Tint"
+        icon = "TintSolid"
     ),
     HabitEntity(
         title = "Fazer exercícios",
@@ -46,7 +50,7 @@ val sampleHabits = listOf(
         category = "Saúde e Bem-estar",
         pontuation = 12,
         days = listOf(Days.SUNDAY.value, Days.MONDAY.value, Days.WEDNESDAY.value),
-        icon = "LineAwesomeIcons.Running"
+        icon = "RunningSolid"
     ),
     HabitEntity(
         title = "Anotar gastos do dia",
@@ -54,7 +58,7 @@ val sampleHabits = listOf(
         category = "Finanças Pessoais",
         pontuation = 6,
         days = listOf(Days.TUESDAY.value, Days.THURSDAY.value, Days.SATURDAY.value),
-        icon = "LineAwesomeIcons.MoneyBillWave"
+        icon = "MoneyBillWaveSolid"
     ),
     HabitEntity(
         title = "Planejar o dia seguinte",
@@ -62,7 +66,7 @@ val sampleHabits = listOf(
         category = "Produtividade",
         pontuation = 7,
         days = listOf(Days.FRIDAY.value, Days.SUNDAY.value),
-        icon = "LineAwesomeIcons.CalendarAlt"
+        icon = "CalendarAltSolid"
     ),
     HabitEntity(
         title = "Enviar mensagem para um amigo",
@@ -70,7 +74,7 @@ val sampleHabits = listOf(
         category = "Relacionamentos",
         pontuation = 4,
         days = listOf(Days.MONDAY.value, Days.WEDNESDAY.value, Days.FRIDAY.value),
-        icon = "LineAwesomeIcons.CommentDots"
+        icon = "CommentDotsSolid"
     ),
     HabitEntity(
         title = "Estudar idioma por 30 minutos",
@@ -78,7 +82,7 @@ val sampleHabits = listOf(
         category = "Trabalho e Estudo",
         pontuation = 10,
         days = listOf(Days.TUESDAY.value, Days.THURSDAY.value),
-        icon = "LineAwesomeIcons.Language"
+        icon = "LanguageSolid"
     ),
     HabitEntity(
         title = "Escrever no diário",
@@ -86,7 +90,7 @@ val sampleHabits = listOf(
         category = "Desenvolvimento Pessoal",
         pontuation = 5,
         days = listOf(Days.SATURDAY.value, Days.SUNDAY.value),
-        icon = "LineAwesomeIcons.PenFancy"
+        icon = "PenFancySolid"
     ),
     HabitEntity(
         title = "Desconectar das redes por 1h",
@@ -94,6 +98,6 @@ val sampleHabits = listOf(
         category = "Desenvolvimento Pessoal",
         pontuation = 8,
         days = listOf(Days.MONDAY.value, Days.WEDNESDAY.value, Days.FRIDAY.value),
-        icon = "LineAwesomeIcons.MobileAlt"
+        icon = "MobileAltSolid"
     )
 )

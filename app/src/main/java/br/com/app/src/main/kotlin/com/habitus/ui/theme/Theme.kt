@@ -12,41 +12,69 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF00C9A7),
-    onPrimary = Color.Black,
-    primaryContainer = Color(0xFF65E8BE),
-    secondary = Color(0xFF007BFF),
-    onSecondary = Color.Black,
-    secondaryContainer = Color(0xFF7CB9FF),
-    background = Color(0xFF121212),
-    onBackground = Color(0xFFE1E6F2),
-    surface = Color(0xFF1E1E1E),
-    onSurface = Color(0xFFE1E6F2),
-    tertiary = Color(0xFF003366),
-    onTertiary = Color.White,
-    tertiaryContainer = Color(0xFF003366).copy(alpha = 0.12f),
-    error = Color(0xFFCF6679),
-    onError = Color.White,
-    errorContainer = Color(0xFFB00020).copy(alpha = 0.12f),
+    primary = Color(0xFF2B5983),
+    onPrimary = Color(0xF5F5F5F5),
+    primaryContainer = Color(0xFF294B80),
+    onPrimaryContainer = Color(0xFFD0E4FF),
+
+    secondary = Color(0xFF65E8BE),
+    onSecondary = Color(0xFF00382E),
+    secondaryContainer = Color(0xFF005143),
+    onSecondaryContainer = Color(0xFF9CF1D9),
+
+    tertiary = Color(0xFFABC7FF),
+    onTertiary = Color(0xFF002F68),
+    tertiaryContainer = Color(0xFF00458F),
+    onTertiaryContainer = Color(0xFFD8E2FF),
+
+    background = Color(0xFF1A1C1E),
+    onBackground = Color(0xFFE3E2E6),
+    surface = Color(0xFF1A1C1E),
+    onSurface = Color(0xFFE3E2E6),
+    surfaceVariant = Color(0xFF43474E),
+    onSurfaceVariant = Color(0xFFC3C7CF),
+
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6),
+
+    inverseSurface = Color(0xFFE3E2E6),
+
+    outline = Color(0xFF8D9199)
 )
 
 val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF007BFF),
+    primary = Color(0xFF003366),
     onPrimary = Color.White,
-    primaryContainer = Color(0xFF96B8E3),
+    primaryContainer = Color(0xFFD0E4FF),
+    onPrimaryContainer = Color(0xFF001D36),
+
     secondary = Color(0xFF00C9A7),
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFB2F2E6),
-    background = Color(0xFFFFFFFF),
-    onBackground = Color(0xFF1A2D5A),
-    surface = Color(0xFFF8F9FA),
-    onSurface = Color(0xFF1A2D5A),
-    tertiary = Color(0xFF003366),
+    onSecondary = Color.Black,
+    secondaryContainer = Color(0xFF9CF1D9),
+    onSecondaryContainer = Color(0xFF00201A),
+
+    tertiary = Color(0xFF007BFF),
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFF003366).copy(alpha = 0.12f),
+    tertiaryContainer = Color(0xFFD8E2FF),
+    onTertiaryContainer = Color(0xFF001A41),
+
+    background = Color(0xFFFDFBFF),
+    onBackground = Color(0xFF1A1C1E),
+    surface = Color(0xFFFDFBFF),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFDFE2EB),
+    onSurfaceVariant = Color(0xFF43474E),
+
+    inverseSurface = Color(0xFF2F3033),
+
     error = Color(0xFFB00020),
     onError = Color.White,
-    errorContainer = Color(0xFFB02E47).copy(alpha = 0.12f),
+    errorContainer = Color(0xFFFFDAD6),
+    onErrorContainer = Color(0xFF410002),
+
+    outline = Color(0xFF73777F)
 )
 
 

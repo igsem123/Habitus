@@ -65,8 +65,7 @@ fun CalendarioComponent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(160.dp)
-            .background(Color.White),
+            .height(160.dp),
     ) {
         val state = rememberWeekCalendarState(
             startDate = startDate,
@@ -80,7 +79,7 @@ fun CalendarioComponent(
                 .fillMaxWidth()
                 .padding(16.dp),
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.tertiary,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         WeekCalendar(
             modifier = Modifier.background(color = Color.Transparent),
@@ -182,7 +181,7 @@ private fun Day(date: LocalDate, isSelected: Boolean, onClick: (LocalDate) -> Un
                 .padding(vertical = 4.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .border(
-                    BorderStroke(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray),
+                    BorderStroke(1.dp, if (isSelected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outline),
                     shape = RoundedCornerShape(16.dp),
                 )
                 .padding(8.dp)
@@ -193,13 +192,13 @@ private fun Day(date: LocalDate, isSelected: Boolean, onClick: (LocalDate) -> Un
             Text(
                 text = date.dayOfWeek.displayText(uppercase = true),
                 fontSize = 12.sp,
-                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray,
+                color = if (isSelected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outline,
                 fontWeight = FontWeight.Light,
             )
             Text(
                 text = dateFormatter.format(date),
                 fontSize = 14.sp,
-                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray,
+                color = if (isSelected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outline,
                 fontWeight = FontWeight.Bold,
             )
         }

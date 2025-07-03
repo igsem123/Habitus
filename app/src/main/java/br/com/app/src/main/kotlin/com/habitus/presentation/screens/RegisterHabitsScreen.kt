@@ -70,7 +70,7 @@ import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.HabitsView
 @Composable
 fun RegisterHabitsScreen(
     modifier: Modifier = Modifier,
-    user: UserEntity,
+    user: UserEntity? = null,
     viewModel: HabitsViewModel = hiltViewModel(),
     onHabitRegistered: () -> Unit // Callback para ação após o registro do hábito
 ) {
@@ -78,8 +78,8 @@ fun RegisterHabitsScreen(
     val context = LocalContext.current
     val gradient = Brush.horizontalGradient(
         listOf(
-            MaterialTheme.colorScheme.tertiary,
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.primary,
+            MaterialTheme.colorScheme.tertiary
         )
     )
 
@@ -133,7 +133,7 @@ fun RegisterHabitsScreen(
                 Icon(
                     imageVector = uiState.selectedIcon,
                     contentDescription = "Selecionar ícone do hábito",
-                    tint = MaterialTheme.colorScheme.tertiary,
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
 
@@ -153,6 +153,7 @@ fun RegisterHabitsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 16.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Card(
@@ -189,6 +190,7 @@ fun RegisterHabitsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 16.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Row(
@@ -218,7 +220,8 @@ fun RegisterHabitsScreen(
                 text = "Ou diariamente",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(1f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Switch(
                 checked = uiState.selectedDays.size == Days.entries.size,
@@ -227,10 +230,12 @@ fun RegisterHabitsScreen(
                 },
                 modifier = Modifier.padding(end = 16.dp),
                 colors = SwitchDefaults.colors(
-                    uncheckedBorderColor = MaterialTheme.colorScheme.surfaceDim,
                     checkedThumbColor = MaterialTheme.colorScheme.tertiary,
-                    uncheckedThumbColor = MaterialTheme.colorScheme.primaryContainer,
-                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                    uncheckedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                    uncheckedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                    checkedBorderColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f),
                 )
             )
         }
@@ -252,6 +257,7 @@ fun RegisterHabitsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 16.dp, top = 16.dp, end = 16.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             HabitFormTextField(
                 value = uiState.pontuation,
@@ -282,6 +288,7 @@ fun RegisterHabitsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         HabitFormTextField(
@@ -300,6 +307,7 @@ fun RegisterHabitsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp, start = 16.dp, end = 16.dp, bottom = 24.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         ExposedDropdownMenuBox(
@@ -320,15 +328,15 @@ fun RegisterHabitsScreen(
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = uiState.isDropdownMenuExpanded) },
                 colors = ExposedDropdownMenuDefaults.textFieldColors(
                     focusedIndicatorColor = MaterialTheme.colorScheme.tertiary,
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
                     focusedTextColor = MaterialTheme.colorScheme.tertiary,
-                    unfocusedTextColor = MaterialTheme.colorScheme.primaryContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.primary,
                     focusedContainerColor = MaterialTheme.colorScheme.background,
                     unfocusedContainerColor = MaterialTheme.colorScheme.background,
                     focusedTrailingIconColor = MaterialTheme.colorScheme.tertiary,
-                    unfocusedTrailingIconColor = MaterialTheme.colorScheme.primaryContainer,
+                    unfocusedTrailingIconColor = MaterialTheme.colorScheme.primary,
                     focusedLabelColor = MaterialTheme.colorScheme.tertiary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.primaryContainer,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.primary,
                 ),
                 shape = RoundedCornerShape(16.dp),
             )
@@ -353,7 +361,7 @@ fun RegisterHabitsScreen(
                         },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         colors = MenuDefaults.itemColors(
-                            textColor = MaterialTheme.colorScheme.tertiary,
+                            textColor = MaterialTheme.colorScheme.primary,
                         )
                     )
                 }
@@ -363,7 +371,7 @@ fun RegisterHabitsScreen(
         TextButton(
             onClick = {
                 if (!uiState.isSaving) { // Verifica se já não está salvando para evitar múltiplos cliques
-                    viewModel.attemptRegisterHabit(userId = user.uid)
+                    viewModel.attemptRegisterHabit(userId = user?.uid ?: "")
                 }
             },
             modifier = Modifier
@@ -407,7 +415,7 @@ private fun HabitFormTextField(
     label: String = "",
     placeholder: String = "",
     mainColor: Color = MaterialTheme.colorScheme.tertiary,
-    secondaryColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    secondaryColor: Color = MaterialTheme.colorScheme.primary,
 ) {
     OutlinedTextField(
         value = value,
@@ -424,6 +432,8 @@ private fun HabitFormTextField(
             unfocusedPlaceholderColor = secondaryColor,
             focusedTextColor = mainColor,
             unfocusedTextColor = secondaryColor,
+            focusedTrailingIconColor = mainColor,
+            unfocusedTrailingIconColor = secondaryColor,
         ),
         singleLine = true,
         maxLines = 1,
@@ -440,7 +450,7 @@ private fun FrequencyButton(
     val color = if (selected) {
         MaterialTheme.colorScheme.tertiary
     } else {
-        MaterialTheme.colorScheme.surfaceDim
+        MaterialTheme.colorScheme.outline
     }
 
     TextButton(
@@ -470,7 +480,7 @@ fun DayButton(
     val color = if (selected) {
         MaterialTheme.colorScheme.tertiary
     } else {
-        MaterialTheme.colorScheme.surfaceDim
+        MaterialTheme.colorScheme.outline
     }
     TextButton(
         onClick = { onSelectDay(day) },
@@ -505,7 +515,7 @@ fun IconSelectorDialog(
         Box(
             modifier = modifier
                 .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.surfaceBright)
                 .size(300.dp, 400.dp)
         ) {
             Column(
@@ -519,7 +529,7 @@ fun IconSelectorDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
                 LazyVerticalGrid(
