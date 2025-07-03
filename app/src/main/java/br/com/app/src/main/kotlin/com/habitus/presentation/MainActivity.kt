@@ -73,6 +73,8 @@ fun Habitus(modifier: Modifier = Modifier) {
 
     val user = firebaseUser?.toUserEntity()
 
+    val startDestination = if (firebaseUser != null) HOME_ROUTE else INITIAL_FORM_ROUTE
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -124,7 +126,7 @@ fun Habitus(modifier: Modifier = Modifier) {
         ) {
             NavHost(
                 navController = navController,
-                startDestination = INITIAL_FORM_ROUTE,
+                startDestination = startDestination,
             ) {
                 initialFormNavigation(navController)
                 homeNavigation(navController)
@@ -155,6 +157,7 @@ fun FirebaseUser.toUserEntity(): UserEntity {
         email = email.orEmpty(),
         password = "", // Nunca armazene senha real!
         uid = uid,
-        username = displayName ?: email.orEmpty().substringBefore("@")
+        username = displayName?.takeIf { it.isNotBlank() }
+            ?: email.orEmpty().substringBefore("@")
     )
 }
