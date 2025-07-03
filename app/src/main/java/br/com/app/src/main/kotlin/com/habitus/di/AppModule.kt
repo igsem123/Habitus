@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.room.Room
 import br.com.app.src.main.kotlin.com.habitus.data.database.HabitusDatabase
 import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthRepository
+import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitLogRepository
+import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitLogRepositoryImpl
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepositoryImpl
 import br.com.app.src.main.kotlin.com.habitus.data.repository.UserRepository
@@ -39,6 +41,12 @@ class AppModule : Application() {
     @Singleton
     fun provideUserRepository(database: HabitusDatabase, auth: AuthRepository): UserRepository {
         return UserRepositoryImpl(database, auth)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHabitLogRepository(database: HabitusDatabase): HabitLogRepository {
+        return HabitLogRepositoryImpl(database)
     }
 
     @Provides
