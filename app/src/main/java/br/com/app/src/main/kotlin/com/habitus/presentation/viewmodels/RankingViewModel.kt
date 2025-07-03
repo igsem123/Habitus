@@ -2,8 +2,6 @@ package br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
-import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitLogEntity
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
 import br.com.app.src.main.kotlin.com.habitus.presentation.screens.RankingRange
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,7 +52,7 @@ class RankingViewModel @Inject constructor(
             val taxa = if (total > 0) (completados * 100 / total) else 0
 
             // Para somar pontuação, precisamos dos hábitos
-            val allHabits = repository.getAllHabits()
+            val allHabits = repository.getAllHabits("userId") // Substitua "userId" pelo ID do usuário atual
             val habitsMap = allHabits.associateBy { it.id }
 
             val pontos = logs

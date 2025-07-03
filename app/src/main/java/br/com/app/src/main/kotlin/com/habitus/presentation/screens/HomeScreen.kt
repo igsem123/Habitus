@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import br.com.app.src.main.kotlin.com.habitus.data.entity.UserEntity
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.CalendarioComponent
 import br.com.app.src.main.kotlin.com.habitus.presentation.components.CardHabits
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.HabitsViewModel
@@ -44,7 +45,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     viewModel: HabitsViewModel = hiltViewModel(),
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    user: UserEntity
 ) {
     val uiState by viewModel.homeUiState.collectAsState()
     val completed by viewModel.completedTasksCount.collectAsState()
@@ -66,7 +68,7 @@ fun HomeScreen(
                 onSelectedDay = { selectedDate ->
                     // Atualiza o estado do ViewModel com a data selecionada
                     viewModel.viewModelScope.launch {
-                        viewModel.filterHabitsByDay(selectedDate)
+                        viewModel.filterHabitsByDay(selectedDate, user.uid)
                     }
                 }
             )
@@ -172,7 +174,12 @@ fun HomeScreen(
 fun HabitsScreenPreview() {
     HabitusTheme {
         HomeScreen(
-            settingsViewModel = hiltViewModel<SettingsViewModel>()
+            settingsViewModel = hiltViewModel<SettingsViewModel>(),
+            user = UserEntity(
+                uid = "12345",
+                username = "Usuário de Teste",
+                email = ""
+            )
         )
     }
 }

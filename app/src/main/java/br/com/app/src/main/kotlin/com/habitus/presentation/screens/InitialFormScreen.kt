@@ -46,14 +46,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -71,7 +67,7 @@ import compose.icons.lineawesomeicons.LockSolid
 import compose.icons.lineawesomeicons.User
 import compose.icons.lineawesomeicons.UserLockSolid
 import androidx.hilt.navigation.compose.hiltViewModel
-import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthResponde
+import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthResponse
 
 /**
  * Tela inicial do app com navegação entre splash, cadastro e login por swipe vertical.
@@ -210,7 +206,7 @@ fun CadastroForm(
 
     val authState by viewModel.authState.collectAsState()
 
-    if (authState is AuthResponde.Success) {
+    if (authState is AuthResponse.Success) {
         viewModel.resetState()
         onNavigateToHome()
     }
@@ -355,9 +351,9 @@ fun CadastroForm(
             }
 
             // Mostrar erro se houver
-            if (authState is AuthResponde.Error) {
+            if (authState is AuthResponse.Error) {
                 Text(
-                    text = (authState as AuthResponde.Error).message,
+                    text = (authState as AuthResponse.Error).message,
                     color = Color.Red,
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -403,7 +399,7 @@ fun LoginForm(
 
     val authState by viewModel.authState.collectAsState()
 
-    if (authState is AuthResponde.Success) {
+    if (authState is AuthResponse.Success) {
         viewModel.resetState()
         onNavigateToHome()
     }
@@ -521,9 +517,9 @@ fun LoginForm(
             }
 
             // Mostrar erro se houver
-            if (authState is AuthResponde.Error) {
+            if (authState is AuthResponse.Error) {
                 Text(
-                    text = (authState as AuthResponde.Error).message,
+                    text = (authState as AuthResponse.Error).message,
                     color = Color.Red,
                     modifier = Modifier.padding(top = 8.dp)
                 )

@@ -7,9 +7,9 @@ import androidx.lifecycle.viewModelScope
 import br.com.app.src.main.kotlin.com.habitus.data.entity.Days
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
+import br.com.app.src.main.kotlin.com.habitus.data.repository.UserRepository
 import br.com.app.src.main.kotlin.com.habitus.presentation.states.HomeUiState
 import br.com.app.src.main.kotlin.com.habitus.presentation.states.RegisterHabitUiState
-import compose.icons.AllIcons
 import compose.icons.LineAwesomeIcons
 import compose.icons.lineawesomeicons.Smile
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +25,8 @@ import java.time.LocalDate
 
 @HiltViewModel
 class HabitsViewModel @Inject constructor(
-    private val repository: HabitRepository
+    private val repository: HabitRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _homeUiState = MutableStateFlow<HomeUiState?>(null)
@@ -41,10 +42,14 @@ class HabitsViewModel @Inject constructor(
     private val _totalTasksCount = MutableStateFlow(0)
     val totalTasksCount: StateFlow<Int> = _totalTasksCount.asStateFlow()
 
+    // Inicializa o ViewModel obtendo o ID do usuário atual
+    private val currentUserUid = userRepository.currentUser.value?.uid ?: ""
+
     init {
         // Inicializa o ViewModel obtendo todos os hábitos do repositório
         viewModelScope.launch(Dispatchers.IO) {
-            getAllHabits()
+            Log.d("HabitsViewModel", "Initializing with user ID: $currentUserUid")
+            getAllHabits(currentUserUid)
         }
     }
 
@@ -173,7 +178,7 @@ class HabitsViewModel @Inject constructor(
                 )
                 repository.insertHabit(habit)
                 _registerUiState.update { it.copy(isSaving = false, saveSuccess = true) }
-                getAllHabits() // Atualiza a lista de hábitos após o registro
+                getAllHabits(currentUserUid) // Atualiza a lista de hábitos após o registro
             } catch (e: Exception) {
                 _registerUiState.update {
                     it.copy(
@@ -198,8 +203,8 @@ class HabitsViewModel @Inject constructor(
      *
      * @return Uma lista de HabitEntity representando todos os hábitos.
      */
-    suspend fun getAllHabits() {
-        val habitsList = repository.getAllHabits()
+    suspend fun getAllHabits(userId: String) {
+        val habitsList = repository.getAllHabits(userId)
         _homeUiState.value = HomeUiState(habits = habitsList)
         _totalTasksCount.value = repository.getHabitsCount()
         _completedTasksCount.value = repository.getCompletedHabits()
@@ -214,7 +219,7 @@ class HabitsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.updateHabit(habit)
-                getAllHabits() // Atualiza a lista de hábitos após a atualização
+                getAllHabits(currentUserUid) // Atualiza a lista de hábitos após a atualização
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -231,7 +236,7 @@ class HabitsViewModel @Inject constructor(
             try {
                 // Chama o repositório para excluir o hábito
                 repository.deleteHabit(habitId)
-                getAllHabits()
+                getAllHabits(currentUserUid)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -251,7 +256,7 @@ class HabitsViewModel @Inject constructor(
 
                 // Atualiza o hábito no repositório
                 repository.updateHabit(updatedHabit)
-                getAllHabits()
+                getAllHabits(currentUserUid)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -263,9 +268,9 @@ class HabitsViewModel @Inject constructor(
      *
      * @param selectedDate A data selecionada para filtrar os hábitos.
      */
-    fun filterHabitsByDay(selectedDate: LocalDate) {
+    fun filterHabitsByDay(selectedDate: LocalDate, userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val allHabits = repository.getAllHabits()
+            val allHabits = repository.getAllHabits(userId)
             val dayOfWeek = selectedDate.dayOfWeek.value // 1 = Segunda ... 7 = Domingo
 
             // Filtra os hábitos com base no dia da semana
