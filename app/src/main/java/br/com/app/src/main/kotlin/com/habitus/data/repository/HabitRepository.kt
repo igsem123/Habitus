@@ -19,4 +19,7 @@ interface HabitRepository {
     suspend fun filterHabitsByPeriod(inicioPeriodo: Long, fimPeriodo: Long): List<HabitLogEntity>
 
     suspend fun getHabitsCount() : Int
+
+    suspend fun getHabitsReport(): String
+
 }

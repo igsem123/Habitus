@@ -2,6 +2,7 @@ package br.com.app.src.main.kotlin.com.habitus.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+
 import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import androidx.room.Transaction
@@ -39,8 +40,9 @@ interface HabitDao {
     suspend fun filterHabitsByPeriod(inicioPeriodo: Long, fimPeriodo: Long): List<HabitLogEntity>
 
     @Transaction
-    @Query("SELECT * FROM habits WHERE DATE() BETWEEN :inicioPeriodo AND :fimPeriodo")
-    suspend fun getHabitsWithLogs(inicioPeriodo: Long, fimPeriodo: Long): List<HabitWithLogs>
+    @Query("SELECT * FROM habits")
+    suspend fun getHabitsWithLogs(): List<HabitWithLogs>
+
 
     @Query("SELECT COUNT(*) FROM habits WHERE isCompleted = 1")
     fun getCompletedHabits(): Int
