@@ -18,15 +18,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import android.widget.Toast
+import android.util.Log
 import androidx.navigation.NavController
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToInitialForm
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsViewModel
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
+import androidx.core.content.edit
+import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsViewModel
 
 @Composable
-fun SettingsScreen(navController: NavController) {
+fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
     val auth = FirebaseAuth.getInstance()
@@ -38,7 +42,14 @@ fun SettingsScreen(navController: NavController) {
     val viewModel: SettingsViewModel = hiltViewModel()
 
     var darkTheme by remember { mutableStateOf(prefs.getBoolean("dark_theme", false)) }
-    var allowNotifications by remember { mutableStateOf(prefs.getBoolean("allow_notifications", true)) }
+    var allowNotifications by remember {
+        mutableStateOf(
+            prefs.getBoolean(
+                "allow_notifications",
+                true
+            )
+        )
+    }
 
     var name by remember { mutableStateOf(user?.displayName ?: "") }
     var email by remember { mutableStateOf(user?.email ?: "") }
@@ -54,18 +65,23 @@ fun SettingsScreen(navController: NavController) {
             onSave = { newName, newEmail, password ->
                 if (newName.isNotBlank()) {
                     val profileUpdate = userProfileChangeRequest {
-                        setDisplayName(newName)
+                        displayName = newName
                     }
                     user.updateProfile(profileUpdate)
                         .addOnSuccessListener { name = newName }
                         .addOnFailureListener {
-                            Toast.makeText(context, "Erro ao atualizar nome", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Erro ao atualizar nome", Toast.LENGTH_SHORT)
+                                .show()
                         }
                 }
 
                 if (newEmail.isNotBlank() && newEmail != email) {
                     if (password.isBlank()) {
-                        Toast.makeText(context, "Informe a senha para alterar o e-mail", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            context,
+                            "Informe a senha para alterar o e-mail",
+                            Toast.LENGTH_LONG
+                        ).show()
                     } else {
                         val credential = EmailAuthProvider.getCredential(user.email!!, password)
                         user.reauthenticate(credential)
@@ -80,13 +96,19 @@ fun SettingsScreen(navController: NavController) {
                                     }
                             }
                             .addOnFailureListener {
-                                Toast.makeText(context, "Senha incorreta.", Toast.LENGTH_LONG).show()
+
+                                Toast.makeText(
+                                    context,
+                                    "Senha incorreta. Não foi possível reautenticar.",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                     }
                 }
 
                 if (newName.isBlank() && (newEmail.isBlank() || newEmail == email)) {
-                    Toast.makeText(context, "Nenhuma alteração detectada", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Nenhuma alteração detectada", Toast.LENGTH_SHORT)
+                        .show()
                 }
 
                 showEditDialog = false
@@ -104,7 +126,8 @@ fun SettingsScreen(navController: NavController) {
                             Toast.makeText(context, "Senha alterada", Toast.LENGTH_SHORT).show()
                         }
                         ?.addOnFailureListener {
-                            Toast.makeText(context, "Erro ao alterar senha", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Erro ao alterar senha", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     showPasswordDialog = false
                 } else {
@@ -131,15 +154,25 @@ fun SettingsScreen(navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Tema escuro", modifier = Modifier.weight(1f))
+                Text(
+                    text = "Tema escuro",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                )
                 Switch(
                     checked = darkTheme,
                     onCheckedChange = {
                         darkTheme = it
-                        prefs.edit().putBoolean("dark_theme", it).apply()
-                        AppCompatDelegate.setDefaultNightMode(
-                            if (it) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-                        )
+                        prefs.edit { putBoolean("dark_theme", it) }
+                        if (it) {
+                            Toast.makeText(context, "Tema escuro ativado", Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            Toast.makeText(context, "Tema claro ativado", Toast.LENGTH_SHORT).show()
+                        }
+
+                        viewModel.setDarkTheme(it)
                     }
                 )
             }
@@ -151,12 +184,17 @@ fun SettingsScreen(navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Permitir notificações", modifier = Modifier.weight(1f))
+                Text(
+                    text = "Permitir notificações",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                )
                 Switch(
                     checked = allowNotifications,
                     onCheckedChange = {
                         allowNotifications = it
-                        prefs.edit().putBoolean("allow_notifications", it).apply()
+                        prefs.edit { putBoolean("allow_notifications", it) }
                         if (it) {
                             val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                                 putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -215,7 +253,8 @@ fun SectionTitle(text: String) {
         fontWeight = FontWeight.Bold,
         modifier = Modifier
             .padding(top = 16.dp)
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
     )
 }
 
@@ -227,7 +266,15 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String, String) ->
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Editar Perfil") },
+        title = {
+            Text(
+                text = "Editar Perfil",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
         text = {
             Column {
                 OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nome") }, singleLine = true, modifier = Modifier.fillMaxWidth())
@@ -237,8 +284,27 @@ fun EditProfileDialog(onDismiss: () -> Unit, onSave: (String, String, String) ->
                 OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Senha (para alterar e-mail)") }, singleLine = true, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation())
             }
         },
-        confirmButton = { TextButton(onClick = { onSave(name, email, password) }) { Text("Salvar") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
+
+        confirmButton = {
+            TextButton(onClick = { onSave(name, email, password) }) {
+                Text(
+                    text = "Salvar",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "Cancelar",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            }
+        }
     )
 }
 
@@ -249,16 +315,49 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onChange: (String, String) -> Un
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Alterar Senha") },
+        title = {
+            Text(
+                text = "Alterar Senha",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
         text = {
             Column {
                 OutlinedTextField(value = newPassword, onValueChange = { newPassword = it }, label = { Text("Nova senha") }, singleLine = true, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation())
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(value = confirmPassword, onValueChange = { confirmPassword = it }, label = { Text("Confirmar senha") }, singleLine = true, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation())
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirmar senha") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation()
+                )
             }
         },
-        confirmButton = { TextButton(onClick = { onChange(newPassword, confirmPassword) }) { Text("Alterar") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
+        confirmButton = {
+            TextButton(onClick = { onChange(newPassword, confirmPassword) }) {
+                Text(
+                    text = "Alterar",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "Cancelar",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            }
+        }
     )
 }
 
@@ -270,11 +369,19 @@ fun SettingsItem(text: String, onClick: () -> Unit) {
             .padding(vertical = 12.dp)
             .clickable { onClick() }
     ) {
-        Text(text = text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.fillMaxWidth())
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+        )
     }
 }
 
 fun logout(context: Context) {
     val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
-    prefs.edit().remove("user_token").apply()
+    prefs.edit().remove(
+        "" +
+                "user_token"
+    ).apply()
 }

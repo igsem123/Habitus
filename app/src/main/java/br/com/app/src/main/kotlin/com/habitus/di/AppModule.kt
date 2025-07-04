@@ -3,8 +3,13 @@ package br.com.app.src.main.kotlin.com.habitus.di
 import android.app.Application
 import androidx.room.Room
 import br.com.app.src.main.kotlin.com.habitus.data.database.HabitusDatabase
+import br.com.app.src.main.kotlin.com.habitus.data.remote.AuthRepository
+import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitLogRepository
+import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitLogRepositoryImpl
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
 import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepositoryImpl
+import br.com.app.src.main.kotlin.com.habitus.data.repository.UserRepository
+import br.com.app.src.main.kotlin.com.habitus.data.repository.UserRepositoryImpl
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
@@ -34,6 +39,24 @@ class AppModule : Application() {
 
     @Provides
     @Singleton
+    fun provideUserRepository(database: HabitusDatabase, auth: AuthRepository): UserRepository {
+        return UserRepositoryImpl(database, auth)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHabitLogRepository(database: HabitusDatabase): HabitLogRepository {
+        return HabitLogRepositoryImpl(database)
+    }
+
+    @Provides
+    @Singleton
     fun provideFirebaseAuth() : FirebaseAuth =
         FirebaseAuth.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(): AuthRepository {
+        return AuthRepository(FirebaseAuth.getInstance())
+    }
 }

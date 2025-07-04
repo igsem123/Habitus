@@ -53,7 +53,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.appcompat)
     //implementation(libs.firebase.common.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -114,5 +113,7 @@ dependencies {
     implementation("androidx.credentials:credentials:$credentialManagerVersion")
     implementation("androidx.credentials:credentials-play-services-auth:$credentialManagerVersion")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
-    
+
+    // Ranking Graphics
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

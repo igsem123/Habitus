@@ -16,8 +16,8 @@ class HabitRepositoryImpl @Inject constructor(
         db.habitDao().insertHabit(habit)
     }
 
-    override suspend fun getAllHabits(): List<HabitEntity> {
-        return db.habitDao().getAllHabits()
+    override suspend fun getAllHabits(userId: String): List<HabitEntity> {
+        return db.habitDao().getAllHabits(userId)
     }
 
     override suspend fun getCompletedHabits(): Int {
@@ -52,10 +52,10 @@ class HabitRepositoryImpl @Inject constructor(
     ): List<HabitLogEntity> {
         return db.habitDao().filterHabitsByPeriod(inicioPeriodo, fimPeriodo)
     }
-
     override suspend fun getHabitsCount(): Int {
         return db.habitDao().getHabitsCount()
     }
+
     private fun getCurrentDate(): String {
         val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
         return formatter.format(Date())
@@ -101,8 +101,5 @@ class HabitRepositoryImpl @Inject constructor(
 
         return report.toString()
     }
-
-
-
 
 }

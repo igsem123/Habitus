@@ -10,7 +10,9 @@ val SecondaryColor = Color(0xFF007BFF)
 val SecondaryLightColor = Color(0xFF007BFF)
 val SecondaryDarkColor = Color(0xFF007BFF)
 
-val SuccessColor = Color(0xFF56CC9D)
+val SuccessColor = Color(0xFFDFF2E1)
+val SuccessGreen = Color(0xFF388E3C)
+val TonalDarkGreen = Color(0xFF40694F)
 val HighlightColor = Color(0xFFF2C94C)
 val DividerColor = Color(0xFFE0E0E0)
 

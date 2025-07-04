@@ -16,8 +16,10 @@ internal fun NavGraphBuilder.rankingNavigation(navController: NavHostController)
 
 fun NavController.navigateToRanking() {
     this.navigate(RANKING_ROUTE) {
-        popUpTo(RANKING_ROUTE) {
-            inclusive = true
+        popUpTo(graph.startDestinationId) {
+            saveState = true
         }
+        launchSingleTop = true
+        restoreState = true
     }
 }

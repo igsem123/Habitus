@@ -1,7 +1,6 @@
 package br.com.app.src.main.kotlin.com.habitus.data.dao
 
 import androidx.room.Dao
-
 import androidx.room.Insert
 
 import androidx.room.OnConflictStrategy.Companion.REPLACE
@@ -17,8 +16,8 @@ interface HabitDao {
     @Insert(onConflict = REPLACE)
     suspend fun insertHabit(habit: HabitEntity)
 
-    @Query("SELECT * FROM habits")
-    suspend fun getAllHabits(): List<HabitEntity>
+    @Query("SELECT * FROM habits WHERE userId = :userId")
+    suspend fun getAllHabits(userId: String): List<HabitEntity>
 
     @Query("DELETE FROM habits WHERE id = :habitId")
     suspend fun deleteHabit(habitId: Long)
