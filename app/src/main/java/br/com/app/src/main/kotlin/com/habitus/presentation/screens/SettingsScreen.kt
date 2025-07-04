@@ -5,7 +5,6 @@ import android.content.Intent
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,8 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import android.widget.Toast
-import android.util.Log
 import androidx.navigation.NavController
 import br.com.app.src.main.kotlin.com.habitus.presentation.navigation.destinations.navigateToInitialForm
 import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsViewModel
@@ -27,7 +24,6 @@ import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
 import androidx.core.content.edit
-import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsViewModel
 
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
