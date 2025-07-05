@@ -3,6 +3,7 @@ package br.com.app.src.main.kotlin.com.habitus.data.repository
 import br.com.app.src.main.kotlin.com.habitus.data.database.HabitusDatabase
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitLogEntity
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -16,7 +17,7 @@ class HabitRepositoryImpl @Inject constructor(
         db.habitDao().insertHabit(habit)
     }
 
-    override suspend fun getAllHabits(userId: String): List<HabitEntity> {
+    override fun getAllHabits(userId: String): Flow<List<HabitEntity>> { // Retorna um Flow e não é mais suspend
         return db.habitDao().getAllHabits(userId)
     }
 

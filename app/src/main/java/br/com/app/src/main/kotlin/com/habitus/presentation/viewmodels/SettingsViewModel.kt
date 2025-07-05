@@ -1,26 +1,20 @@
 package br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels
 
 import android.content.Context
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import java.io.File
-import javax.inject.Inject
-import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
 import android.content.Intent
 import androidx.core.content.FileProvider
-import kotlinx.coroutines.Dispatchers
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import android.content.Context
-import androidx.core.content.edit
+import br.com.app.src.main.kotlin.com.habitus.data.repository.HabitRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import java.io.File
 
 
 @HiltViewModel
@@ -34,7 +28,7 @@ class SettingsViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        viewModelScope.launch(Dispatchers.IO) { // ✅ Aqui está a correção!
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val report = habitRepository.getHabitsReport()
 
