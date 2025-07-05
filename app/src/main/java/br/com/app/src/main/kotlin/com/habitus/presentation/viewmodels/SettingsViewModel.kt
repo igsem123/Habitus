@@ -28,7 +28,7 @@ class SettingsViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        viewModelScope.launch(Dispatchers.IO) { // ✅ Aqui está a correção!
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val report = habitRepository.getHabitsReport()
 
