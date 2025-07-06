@@ -20,6 +20,7 @@ lifecycleRuntimeKtx = "2.9.0"
 activityCompose = "1.10.1"
 composeBom = "2025.05.01"
 lineAwesome = "1.1.1"
+mpandroidchart = "v3.1.0"
 navigationCompose = "2.9.0"
 roomRuntime = "2.7.1"
 uiTextGoogleFonts = "1.8.2"
@@ -60,6 +61,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.4.0-alpha17" }
 line-awesome = { module = "br.com.devsrsouza.compose.icons:line-awesome", version.ref = "lineAwesome" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

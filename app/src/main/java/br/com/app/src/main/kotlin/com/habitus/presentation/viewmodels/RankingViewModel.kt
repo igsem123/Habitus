@@ -15,6 +15,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 
 @HiltViewModel
@@ -57,8 +59,7 @@ class RankingViewModel @Inject constructor(
             val taxa = if (total > 0) (completados * 100 / total) else 0
 
             // Para somar pontuação, precisamos dos hábitos
-            val allHabits = repository.getAllHabits("userId") // Substitua "userId" pelo ID do usuário atual
-
+            val allHabits = repository.getAllHabits("userId").first() // Certifique-se de importar kotlinx.coroutines.flow.first
             val habitsMap = allHabits.associateBy { it.id }
             val pontos = logs.filter { it.isCompleted }.sumOf { habitsMap[it.habitId]?.pontuation ?: 0 }
 

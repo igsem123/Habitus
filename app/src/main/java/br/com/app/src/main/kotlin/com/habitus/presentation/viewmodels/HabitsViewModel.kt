@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 @HiltViewModel
@@ -64,7 +63,10 @@ class HabitsViewModel @Inject constructor(
                 java.time.DayOfWeek.SATURDAY -> 7
             }
 
-            Log.d("ViewModel_Filter", "Data: $date. Convertido para o dia do nosso sistema: $dayValueInYourSystem")
+            Log.d(
+                "ViewModel_Filter",
+                "Data: $date. Convertido para o dia do nosso sistema: $dayValueInYourSystem"
+            )
 
             // 3. Filtra usando o valor convertido e correto
             habits.filter { it.days.contains(dayValueInYourSystem) }
@@ -116,15 +118,13 @@ class HabitsViewModel @Inject constructor(
         _selectedDate.value = date
     }
 
-    // Função para recarregar todos os hábitos (chame após criar/deletar um hábito)
     private fun loadAllHabits(userId: String) {
         viewModelScope.launch {
             Log.d("HabitsViewModel", "Carregando hábitos para o usuário: $userId")
-            val habitsFromDb = withContext(Dispatchers.IO) {
-                repository.getAllHabits(userId)
+            repository.getAllHabits(userId).collect { habitsFromDb ->
+                _allHabits.value = habitsFromDb
+                Log.d("HabitsViewModel", "Hábitos carregados: ${habitsFromDb.size}")
             }
-            _allHabits.value = habitsFromDb
-            Log.d("HabitsViewModel", "Hábitos carregados: ${habitsFromDb.count()}")
         }
     }
 
@@ -212,10 +212,8 @@ class HabitsViewModel @Inject constructor(
 
                 // Recarrega todos os hábitos após o registro
                 Log.d("HabitsViewModel", "Recarregando hábitos após registro")
-                currentUserId?.let { uid ->
-                    Log.d("HabitsViewModel", "ID do usuário: $uid")
-                    loadAllHabits(uid)
-                }
+
+                loadAllHabits(userId)
             } catch (e: Exception) {
                 _registerUiState.update {
                     it.copy(
@@ -270,9 +268,7 @@ class HabitsViewModel @Inject constructor(
                 repository.insertHabit(habit)
                 _registerUiState.update { it.copy(isSaving = false, saveSuccess = true) }
 
-                currentUserId?.let { uid ->
-                    loadAllHabits(uid)
-                }
+                loadAllHabits(userId)
             } catch (e: Exception) {
                 _registerUiState.update {
                     it.copy(
@@ -331,14 +327,15 @@ class HabitsViewModel @Inject constructor(
         }
     }
 
-    //COMENTEI A FUCNAO "checkHabit"  PQ ELA MARCA COMO "FEITO" O HABITO TODINHO E NAO SÓ DO HABITO DE HOJE
     // FUNCAO QUE MARCA COMO FEITO O HABITO DE HOJE
-    fun checkHabitForToday(updatedHabit: HabitEntity, isCompleted: Boolean) {
+    fun checkHabitForToday(habit: HabitEntity, isCompleted: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             val today = getTodayDateMillis()
-            val log = habitLogRepository.getLogForHabitAndDate(updatedHabit.id, today)
+            val log = habitLogRepository.getLogForHabitAndDate(habit.id, today)
 
-            // Atualiza o hábito no repositório
+            // Crie uma cópia do hábito com o estado de conclusão atualizado
+            val updatedHabit = habit.copy(isCompleted = isCompleted)
+            // Atualiza o hábito no repositório com o objeto atualizado
             repository.updateHabit(updatedHabit)
 
             currentUserId?.let { uid ->
@@ -352,7 +349,7 @@ class HabitsViewModel @Inject constructor(
                 // fallback: cria um log se não existir (opcional)
                 habitLogRepository.insertLog(
                     HabitLogEntity(
-                        habitId = updatedHabit.id,
+                        habitId = habit.id,
                         date = today,
                         isCompleted = isCompleted
                     )
@@ -380,18 +377,20 @@ class HabitsViewModel @Inject constructor(
                 val currentDayOfWeek = java.util.Calendar.getInstance()
                     .get(java.util.Calendar.DAY_OF_WEEK) // 1 = Domingo
 
-                allHabits.forEach { habit ->
-                    if (currentDayOfWeek in habit.days) {
-                        val existing =
-                            habitLogRepository.getLogForHabitAndDate(habit.id, todayMillis)
-                        if (existing == null) {
-                            habitLogRepository.insertLog(
-                                HabitLogEntity(
-                                    habitId = habit.id,
-                                    date = todayMillis,
-                                    isCompleted = false
+                allHabits.collect { habit ->
+                    habit.forEach {
+                        if (currentDayOfWeek in it.days) {
+                            val existing =
+                                habitLogRepository.getLogForHabitAndDate(it.id, todayMillis)
+                            if (existing == null) {
+                                habitLogRepository.insertLog(
+                                    HabitLogEntity(
+                                        habitId = it.id,
+                                        date = todayMillis,
+                                        isCompleted = false
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }

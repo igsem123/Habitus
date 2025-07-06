@@ -9,6 +9,7 @@ import androidx.room.Transaction
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitEntity
 import br.com.app.src.main.kotlin.com.habitus.data.entity.HabitLogEntity
 import br.com.app.src.main.kotlin.com.habitus.data.relation.HabitWithLogs
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface HabitDao {
@@ -17,7 +18,7 @@ interface HabitDao {
     suspend fun insertHabit(habit: HabitEntity)
 
     @Query("SELECT * FROM habits WHERE userId = :userId")
-    suspend fun getAllHabits(userId: String): List<HabitEntity>
+    fun getAllHabits(userId: String): Flow<List<HabitEntity>>
 
     @Query("DELETE FROM habits WHERE id = :habitId")
     suspend fun deleteHabit(habitId: Long)
