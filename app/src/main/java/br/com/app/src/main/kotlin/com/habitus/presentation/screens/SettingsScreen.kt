@@ -41,6 +41,8 @@ import br.com.app.src.main.kotlin.com.habitus.presentation.viewmodels.SettingsVi
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.userProfileChangeRequest
+import androidx.core.content.edit
+
 
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
